@@ -28,7 +28,7 @@ function NavBar({ handleSidebarToggle, isSidebarOpen, user }) {
                 <div>
                     <Link to="/profile">
                         <img
-                            src={user.avatarimg || '/resource/default-avatar.png'}
+                            src={user?.avatarimg || '/resource/default-avatar.png'}
                             alt="Avatar"
                             className="absolute right-[20px] top-1/2 transform -translate-x-1/2 -translate-y-1/2 w-[30px] h-[30px] rounded-full border-0 border-gray-500 shadow-md object-cover cursor-pointer"
                         />

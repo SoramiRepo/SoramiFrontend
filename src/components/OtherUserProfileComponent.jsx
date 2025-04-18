@@ -60,21 +60,26 @@ function OtherUserProfileComponent() {
         <div className="min-h-[calc(100vh-1px)] bg-gray-100 pt-[60px] px-4 pb-10 flex justify-center items-start">
             <div className="w-full max-w-xl bg-white shadow-xl rounded-2xl p-6">
                 {/* 个人资料部分 */}
-                <div className="flex flex-col items-center">
-                    <img
-                        src={user.avatarimg || '/resource/default-avatar.png'}
-                        alt="avatar"
-                        className="w-24 h-24 rounded-full object-cover shadow-md"
-                    />
-                    <h2 className="text-2xl font-semibold mt-4 text-gray-800">
-                        {user.avatarname || user.username}
-                    </h2>
-                    <p className="text-gray-500">@{user.username}</p>
-                    <p className="mt-4 text-center text-gray-600">{user.bio || ''}</p>
-                    <p className="mt-2 text-sm text-gray-400">
-                        Register Time: {new Date(user.registertime).toLocaleString()}
-                    </p>
-                </div>
+                {user ? (
+                    <div className="flex flex-col items-center">
+                        <img
+                            src={user.avatarimg || '/resource/default-avatar.png'}
+                            alt="avatar"
+                            className="w-24 h-24 rounded-full object-cover shadow-md"
+                        />
+                        <h2 className="text-2xl font-semibold mt-4 text-gray-800">
+                            {user.avatarname || user.username}
+                        </h2>
+                        <p className="text-gray-500">@{user.username}</p>
+                        <p className="mt-4 text-center text-gray-600">{user.bio || ''}</p>
+                        <p className="mt-2 text-sm text-gray-400">
+                            Register Time: {new Date(user.registertime).toLocaleString()}
+                        </p>
+                    </div>
+                ) : (
+                    <div className="text-center text-red-500">User data not available.</div>
+                )}
+
 
                 {/* 用户帖子展示 */}
                 <div className="mt-6">
