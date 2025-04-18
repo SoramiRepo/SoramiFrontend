@@ -1,0 +1,15 @@
+/* @tailwind base;
+@tailwind components;
+@tailwind utilities; */
+
+@import "tailwindcss";
+
+textarea:focus,
+button:focus {
+  outline: none;
+  border-color: #60A5FA; /* Tailwind's blue-400 */
+}
+
+button:hover {
+  background-color: #3B82F6; /* Tailwind's blue-500 */
+}
