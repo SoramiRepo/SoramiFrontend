@@ -12,7 +12,6 @@ function OtherUserProfileComponent() {
     const { username } = useParams();
 
     const handleDelete = (postId) => {
-        console.log("Timeline RECV DELETE POST: " + postId);
         setPosts(prev => prev.filter(post => post._id !== postId));
     };
 

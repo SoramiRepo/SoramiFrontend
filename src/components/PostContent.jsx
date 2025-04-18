@@ -132,7 +132,7 @@ function PostContent({ post, allPosts = [], onDelete, onReplySuccess }) {
                     parentId={post._id}
                     allPosts={allPosts}
                     onDelete={onDelete}
-                    onReplySuccess={onReplySuccess}
+                    onReplySuccess={onReplySuccess} // 确保传递了 `onReplySuccess`
                 />
             )}
         </motion.div>

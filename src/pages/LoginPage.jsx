@@ -53,7 +53,6 @@ function LoginPage() {
                         ...data.user,
                         token: data.token
                     }));
-                    console.log('User information:', data.user);
                     navigate('/');
                 } else {
                     setMessage('Registration successful, please log in');

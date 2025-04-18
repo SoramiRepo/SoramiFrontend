@@ -14,7 +14,6 @@ function PostInput({ onPostSuccess }) {
 
         try {
             const token = JSON.parse(localStorage.getItem('user'))?.token;
-            console.log("Received Token:", token); // DEBUG
             if (!token) {
                 alert("Not login");
                 return;

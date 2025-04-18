@@ -21,7 +21,6 @@ function HomePage() {
     };
 
     const handlePostSuccess = (newPost) => {
-        console.log("New Post Added:", newPost);
         setPosts(prevPosts => [newPost, ...prevPosts]);
     };
 

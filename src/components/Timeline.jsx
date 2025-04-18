@@ -4,7 +4,6 @@ import PostContent from './PostContent';
 function Timeline({ posts, setPosts }) {
 
     const handleDelete = (postId) => {
-        console.log("Timeline RECV DELETE POST: " + postId);
         setPosts(prev => prev.filter(post => post._id !== postId));
     };
 
