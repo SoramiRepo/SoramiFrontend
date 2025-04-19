@@ -16,8 +16,8 @@ const getCurrentUserId = () => {
     }
 };
 
-function PostContent({ post, allPosts = [], onDelete, onReplySuccess }) {
-    const [showReplies, setShowReplies] = useState(false);
+function PostContent({ post, allPosts = [], onDelete, onReplySuccess, defaultExpanded = false }) {
+    const [showReplies, setShowReplies] = useState(defaultExpanded);
     const [replyContent, setReplyContent] = useState('');
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [showReplyInput, setShowReplyInput] = useState(false);

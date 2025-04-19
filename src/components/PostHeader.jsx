@@ -1,14 +1,17 @@
 import React from 'react';
 import { format } from 'timeago.js';
+import { Link } from 'react-router-dom';
 
 function PostHeader({ post, onDelete, currentUserId, parentPost }) {
     return (
         <div className="flex items-start gap-x-4">
-            <img
-                src={post.author?.avatarimg || '/resource/default-avatar.png'}
-                alt="avatar"
-                className="w-[40px] h-[40px] rounded-full object-cover"
-            />
+            <Link to={`/${post.author?.username}`}>
+                <img
+                    src={post.author?.avatarimg || '/resource/default-avatar.png'}
+                    alt="avatar"
+                    className="w-[40px] h-[40px] rounded-full object-cover"
+                />
+            </Link>
             <div>
                 <div className="font-semibold text-sm text-black dark:text-white">
                     {post.author?.avatarname || post.author?.username}

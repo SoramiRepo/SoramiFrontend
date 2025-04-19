@@ -6,9 +6,11 @@ import config from '../config';
 import NavBar from '../components/NavBar'; // 引入 NavBar 组件
 import Sidebar from '../components/Sidebar';
 import PostInput from '../components/PostInput';
-import Timeline from '../components/Timeline';
+import Timeline from '../components/PostList';
 import ProfileComponent from '../components/ProfileComponent';
 import OtherUserProfileComponent from '../components/OtherUserProfileComponent';
+import SearchPage from './SearchPage'
+import PostPage from './PostPage';
 
 function HomePage() {
     const [posts, setPosts] = useState([]);
@@ -66,6 +68,11 @@ function HomePage() {
                     <ProfileComponent />
                 ) : username && username !== 'profile' ? (
                     <OtherUserProfileComponent />
+                ) : location.pathname === '/search' ? (
+                    <SearchPage />
+                ) : location.pathname.startsWith('/post/') ?  
+                (
+                    <PostPage />
                 ) : (
                     <>
                         <div className="bg-white p-6 shadow-lg rounded-lg">
