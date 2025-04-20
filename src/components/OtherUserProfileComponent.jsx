@@ -188,7 +188,7 @@ function OtherUserProfileComponent() {
                                     </div>
                                 ))
                             ) : (
-                                <div className="p-4 bg-gray-100 rounded-lg text-center text-gray-500">
+                                <div className="p-4 bg-gray-100 rounded-lg text-center text-gray-500 dark:bg-gray-800">
                                     No followers yet.
                                 </div>
                             )}
@@ -213,7 +213,7 @@ function OtherUserProfileComponent() {
                                     </div>
                                 ))
                             ) : (
-                                <div className="p-4 bg-gray-100 rounded-lg text-center text-gray-500">
+                                <div className="p-4 bg-gray-100 rounded-lg text-center text-gray-500 dark:bg-gray-800">
                                     Not following anyone yet.
                                 </div>
                             )}
