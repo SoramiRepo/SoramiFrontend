@@ -41,14 +41,14 @@ function HomePage() {
 
     // 始终渲染 Sidebar 和 NavBar，不受路由影响
     return (
-        <div className="relative min-h-screen bg-gray-100 overflow-x-hidden">
+        <div className="relative dark:bg-gray-900 min-h-screen bg-gray-100 overflow-x-hidden">
             {/* Sidebar */}
             <Sidebar isOpen={isSidebarOpen} onClose={() => setSidebarOpen(false)} />
 
             {/* 遮罩层 */}
             {isSidebarOpen && (
                 <div
-                    className="fixed inset-0 bg-black/50 z-30 lg:hidden"
+                    className="fixed inset-0 z-30 lg:hidden"
                     onClick={() => setSidebarOpen(false)}
                 ></div>
             )}
@@ -75,7 +75,7 @@ function HomePage() {
                     <PostPage />
                 ) : (
                     <>
-                        <div className="bg-white p-6 shadow-lg rounded-lg">
+                        <div className="bg-white dark:bg-gray-800 p-6 shadow-lg rounded-lg">
                             <PostInput onPostSuccess={handlePostSuccess} />
                             <Timeline posts={posts} setPosts={setPosts} />
                         </div>

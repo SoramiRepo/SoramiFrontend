@@ -38,7 +38,7 @@ function PostPage() {
             <PostContent 
                 post={post} 
                 allPosts={[post, ...replies]} 
-                defaultExpanded={true}  // ✅ 新增：让 PostContent 中的 reply 默认展开
+                defaultExpanded={true}
             />
         </div>
     );

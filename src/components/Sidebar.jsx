@@ -15,7 +15,7 @@ function Sidebar({ isOpen = false, onClose }) {
     return (
         <>
             {/* 桌面端静态 Sidebar */}
-            <div style={{ minHeight: 'calc(100vh - 10px)' }} className="hidden lg:block fixed top-1 left-1 z-50 w-72 bg-[#F6F8FA] text-black p-6 shadow-lg rounded-xl">
+            <div style={{ minHeight: 'calc(100vh - 10px)' }} className="hidden lg:block fixed top-1 left-1 z-50 w-72 bg-[#F6F8FA80] dark:bg-[#1e293b80] backdrop-blur-sm dark:text-white text-black p-6 shadow-lg rounded-xl">
                 <SidebarContent />
             </div>
 
@@ -23,14 +23,14 @@ function Sidebar({ isOpen = false, onClose }) {
                 initial="closed"
                 animate={isOpen ? 'open' : 'closed'}
                 variants={{
-                    open: { x: 0 },
+                    open: { x: 5 },
                     closed: { x: -300 },
                 }}
                 transition={{ type: 'spring', stiffness: 100, damping: 20 }}
-                className="fixed top-0 left-0 z-50 w-72 min-h-screen bg-[#F6F8FA] text-black p-6 shadow-lg rounded-r-xl lg:hidden"
+                className="fixed top-1 left-0 z-50 w-72 min-h-screen text-black dark:text-white p-6 shadow-lg bg-[#F6F8FA80] dark:bg-[#1e293b80] backdrop-blur-sm rounded-xl lg:hidden"
             >
                 <div className="flex justify-end mb-4">
-                    <button onClick={onClose} className="text-black text-3xl hover:text-gray-400">
+                    <button onClick={onClose} className="hover:bg-none text-black text-3xl hover:text-gray-400 dark:text-white">
                         &times;
                     </button>
                 </div>
@@ -52,7 +52,7 @@ function SidebarContent({ onClose }) {
                             onClick={() => onClose?.()} // 安全调用
                             className={({ isActive }) =>
                                 `flex items-center gap-4 px-5 py-3 rounded-full transition-all 
-                                ${isActive ? 'bg-blue-600 text-white' : 'text-black hover:bg-blue-600'} 
+                                ${isActive ? 'bg-blue-600 text-white' : 'text-black dark:text-white hover:bg-blue-600'} 
                                 hover:text-white focus:outline-none focus:ring-2 focus:ring-blue-600 focus:ring-opacity-50 
                                 transform hover:scale-105`
                             }

@@ -44,9 +44,9 @@ function PostInput({ onPostSuccess }) {
     };
 
     return (
-        <div className="bg-gray-50 p-4 rounded-md">
+        <div className="p-4 rounded-md">
             <textarea
-                className="w-full p-2 border border-gray-300 rounded-md"
+                className="w-full p-2 border border-gray-300 rounded-md dark:text-slate-100"
                 rows="4"
                 value={postContent}
                 onChange={(e) => setPostContent(e.target.value)}

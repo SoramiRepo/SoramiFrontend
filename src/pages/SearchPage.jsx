@@ -37,14 +37,14 @@ function SearchPage() {
     };
 
     return (
-        <div className="p-6 max-w-3xl mx-auto">
+        <div className="p-6 max-w-3xl mx-auto dark:text-gray-300">
             <form onSubmit={handleSearch} className="flex gap-2 mb-6">
                 <input
                     type="text"
                     value={keyword}
                     onChange={(e) => setKeyword(e.target.value)}
                     placeholder="Search users or posts..."
-                    className="border flex-1 px-4 py-2 rounded-lg border border-gray-300 dark:bg-slate-800  px-3 py-2 rounded w-full focus:border-1 focus:border-[#2B7FFF] focus:outline-none"
+                    className="border flex-1 px-4 py-2 rounded-lg border border-gray-300 dark:bg-slate-800 px-3 py-2 rounded w-full focus:border-1 focus:border-[#2B7FFF] focus:outline-none"
                 />
                 <button type="submit" className="bg-blue-500 text-white px-4 py-2 rounded">
                     Search

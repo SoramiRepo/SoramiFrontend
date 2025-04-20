@@ -3,6 +3,7 @@ import { useParams } from 'react-router-dom';
 import config from '../config';
 
 import PostContent from './PostContent';
+import PostList from './PostList';
 
 function OtherUserProfileComponent() {
     const [user, setUser] = useState(null);
@@ -57,8 +58,8 @@ function OtherUserProfileComponent() {
     }
 
     return (
-        <div className="min-h-[calc(100vh-1px)] bg-gray-100 pt-[60px] px-4 pb-10 flex justify-center items-start">
-            <div className="w-full max-w-xl bg-white shadow-xl rounded-2xl p-6">
+        <div className="min-h-[calc(100vh-1px)] pt-[60px] px-4 pb-10 flex justify-center items-start">
+            <div className="w-full max-w-xl bg-white shadow-xl dark:bg-gray-800 rounded-2xl p-6">
                 {/* 个人资料部分 */}
                 {user ? (
                     <div className="flex flex-col items-center">
@@ -67,11 +68,11 @@ function OtherUserProfileComponent() {
                             alt="avatar"
                             className="w-24 h-24 rounded-full object-cover shadow-md"
                         />
-                        <h2 className="text-2xl font-semibold mt-4 text-gray-800">
+                        <h2 className="text-2xl font-semibold mt-4 text-gray-800  dark:text-gray-100">
                             {user.avatarname || user.username}
                         </h2>
                         <p className="text-gray-500">@{user.username}</p>
-                        <p className="mt-4 text-center text-gray-600">{user.bio || ''}</p>
+                        <p className="mt-4 text-center text-gray-600 dark:text-gray-300">{user.bio || ''}</p>
                         <p className="mt-2 text-sm text-gray-400">
                             Register Time: {new Date(user.registertime).toLocaleString()}
                         </p>
@@ -83,7 +84,7 @@ function OtherUserProfileComponent() {
 
                 {/* 用户帖子展示 */}
                 <div className="mt-6">
-                    <h3 className="text-lg font-semibold text-gray-800">Posts from @{username}</h3>
+                    <h3 className="text-lg font-semibold text-gray-800 dark:text-gray-100">Posts from @{username}</h3>
 
                     {loading ? (
                         <div className="mt-4 text-center text-gray-500">Loading...</div>
@@ -94,9 +95,7 @@ function OtherUserProfileComponent() {
                                     This user hasn't posted yet.
                                 </div>
                             ) : (
-                                posts.map((post) => (
-                                    <PostContent key={post._id} post={post} allPosts={posts} onDelete={handleDelete} />
-                                ))
+                                <PostList posts={posts} />
                             )}
                         </div>
                     )}

@@ -25,7 +25,7 @@ function PostList({ posts, setPosts }) {
                         key={post._id}
                         onClick={(e) => {
                             // 避免点击按钮触发跳转
-                            if (e.target.closest('button') || e.target.closest('img') || e.target.tagName === 'A') return;
+                            if (e.target.closest('button') || e.target.closest('img') || e.target.closest('input') || e.target.tagName === 'A') return;
                             navigate(`/post/${post._id}`);
                         }}
                         className="cursor-pointer"
