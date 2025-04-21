@@ -1,16 +1,31 @@
 import React, { useEffect, useState } from 'react';
 import config from '../config';
 import PostList from '../components/PostList';
+import UserBadges from '../components/UserBadges';
+import FollowBackIndicator from '../components/FollowBackIndicator';
 import { Link } from 'react-router-dom';
 
 function SearchPage() {
     const [keyword, setKeyword] = useState('');
     const [searchTerm, setSearchTerm] = useState('');
+    const [currentUserId, setCurrentUserId] = useState(null);
+    const [token, setToken] = useState('');
     const [users, setUsers] = useState([]);
     const [posts, setPosts] = useState([]);
     const [loading, setLoading] = useState(false);
 
+    useEffect(() => {
+        const userData = JSON.parse(localStorage.getItem('user'));
+        console.log(userData)
+        if (userData) {
+            setCurrentUserId(userData.id);
+            setToken(userData.token);
+        }
+        console.log(`userData.id: ${userData.id}`)
+    }, []);
+
     const handleSearch = async (e) => {
+        console.log(`CurrentUserId: ${currentUserId}`)
         e.preventDefault();
         const trimmed = keyword.trim();
         if (!trimmed) return;
@@ -74,7 +89,12 @@ function SearchPage() {
                                                         alt="avatar" 
                                                     />
                                                     <div>
-                                                        <div className="font-semibold">{user.avatarname || user.username}</div>
+                                                        <div className="font-semibold flex items-center">
+                                                            {user.avatarname || user.username}
+                                                            <UserBadges badges={user.badges} />
+                                                            <FollowBackIndicator currentUserId={currentUserId} followerList={user.following} />
+                                                            {console.log(`user.following: ${user.following}`)}
+                                                        </div>
                                                         <div className="text-sm text-gray-500">@{user.username}</div>
                                                     </div>
                                                 </Link>

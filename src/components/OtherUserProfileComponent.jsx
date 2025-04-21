@@ -1,7 +1,9 @@
 import React, { useEffect, useState } from 'react';
-import { useParams } from 'react-router-dom';
+import { Link, useParams } from 'react-router-dom';
 import config from '../config';
 import PostList from './PostList';
+import UserBadges from './UserBadges';
+import FollowBackIndicator from './FollowBackIndicator';
 
 function OtherUserProfileComponent() {
     const [user, setUser] = useState(null);
@@ -13,8 +15,8 @@ function OtherUserProfileComponent() {
     const [currentUserId, setCurrentUserId] = useState(null);
     const [token, setToken] = useState('');
     const [isFollowing, setIsFollowing] = useState(false);
-    const [viewFollowers, setViewFollowers] = useState(false); // 控制是否显示关注者列表
-    const [viewFollowing, setViewFollowing] = useState(false); // 控制是否显示关注列表
+    const [viewFollowers, setViewFollowers] = useState(false);
+    const [viewFollowing, setViewFollowing] = useState(false);
 
     const handleDelete = (postId) => {
         setPosts(prev => prev.filter(post => post._id !== postId));
@@ -27,7 +29,8 @@ function OtherUserProfileComponent() {
             setCurrentUserId(userData.id);
             setToken(userData.token);
         } else {
-            console.log("没有找到用户信息，请登录");
+            setLoading(false);
+            setError('Please log in to view profiles');
         }
     }, []);
 
@@ -48,18 +51,14 @@ function OtherUserProfileComponent() {
     
                 // 确保 followers 是一个数组
                 const followers = Array.isArray(userData.user.followers) ? userData.user.followers : [];
-                console.log('Followers Array:', followers);
-                console.log('currentUserId:', currentUserId);
     
                 // 调试：打印 followers 数组的每个元素
                 followers.forEach((follower, index) => {
                     console.log(`follower[${index}] ->`, follower, 'Type:', typeof follower);
                 });
-                console.log('currentUserId Type:', typeof currentUserId);
     
-                // 强制转换类型为字符串后进行比对
+                // 关注与被关注
                 const isUserFollowing = followers.some(follower => String(follower._id) === String(currentUserId));
-                console.log('isUserFollowing:', isUserFollowing);
     
                 setUser({
                     ...userData.user,
@@ -91,9 +90,6 @@ function OtherUserProfileComponent() {
     const handleFollowToggle = async () => {
         if (!token || !user) return alert('请先登录');
     
-        console.log("当前登录用户ID:", currentUserId);
-        console.log("目标用户ID:", user._id);
-    
         const endpoint = isFollowing ? 'unfollow' : 'follow';
     
         try {
@@ -106,7 +102,6 @@ function OtherUserProfileComponent() {
             });
     
             const result = await res.json();
-            console.log('Follow toggle result:', result);
     
             if (res.ok) {
                 // 切换关注状态
@@ -123,8 +118,6 @@ function OtherUserProfileComponent() {
     // Loading and error states
     if (loading) return <div className="p-10 text-center text-gray-500">Loading...</div>;
     if (error) return <div className="p-10 text-center text-red-500">{error}</div>;
-
-    console.log("isFollowing:", isFollowing); // 调试输出关注状态
 
     return (
         <div className="min-h-[calc(100vh-1px)] pt-[60px] px-4 pb-10 flex justify-center items-start">
@@ -148,16 +141,19 @@ function OtherUserProfileComponent() {
                                 {isFollowing ? '取消关注' : '关注'}
                             </button>
                         )}
-                        <h2 className="text-2xl font-semibold mt-4 text-gray-800 dark:text-gray-100">
-                            {user.avatarname || user.username}
+                        <h2 className="text-2xl font-semibold mt-4 text-gray-800 dark:text-gray-100 flex items-center">
+                            <span>{user.avatarname || user.username}</span>
+                            <UserBadges badges={user.badges} />
+                            <FollowBackIndicator currentUserId={currentUserId} followerList={user.following} />
                         </h2>
+
                         <p className="text-gray-500">@{user.username}</p>
                         <p className="mt-4 text-center text-gray-600 dark:text-gray-300">{user.bio || ''}</p>
                         <p className="mt-2 text-sm text-gray-400">
                             Register Time: {new Date(user.registertime).toLocaleString()}
                         </p>
 
-                        {/* 显示关注数和粉丝数（横向展示） */}
+                        {/* 显示关注数和粉丝数 */}
                         <div className="mt-4 flex space-x-6 text-gray-600 dark:text-gray-300">
                             <button onClick={() => setViewFollowers(true)} className="flex items-center space-x-2">
                                 <span>{user.followersCount}</span>
@@ -175,16 +171,20 @@ function OtherUserProfileComponent() {
                 {viewFollowers && (
                     <div className="mt-6">
                         <h3 className="text-lg font-semibold text-gray-800 dark:text-gray-100">Followers</h3>
-                        <div className="space-y-4 mt-4">
                             {user.followers && user.followers.length > 0 ? (
                                 user.followers.map(follower => (
-                                    <div key={follower._id} className="flex items-center space-x-4">
-                                        <img
-                                            src={follower.avatarimg || '/resource/default-avatar.png'}
-                                            alt={follower.username}
-                                            className="w-10 h-10 rounded-full"
-                                        />
-                                        <span>{follower.avatarname}</span>
+                                    <div className="space-y-4 mt-4">
+                                        <Link to={`/${follower.username}`}>
+                                            <div key={follower._id} className="flex items-center space-x-2">
+                                                <img
+                                                    src={follower.avatarimg || '/resource/default-avatar.png'}
+                                                    alt={follower.username}
+                                                    className="w-10 h-10 rounded-full"
+                                                />
+                                                <span>{follower.avatarname || follower.username}</span>
+                                                <UserBadges badges={follower.badges} />
+                                            </div>
+                                        </Link>
                                     </div>
                                 ))
                             ) : (
@@ -193,24 +193,27 @@ function OtherUserProfileComponent() {
                                 </div>
                             )}
                         </div>
-                    </div>
                 )}
 
                 {/* 关注列表 */}
                 {viewFollowing && (
                     <div className="mt-6">
                         <h3 className="text-lg font-semibold text-gray-800 dark:text-gray-100">Following</h3>
-                        <div className="space-y-4 mt-4">
                             {user.following && user.following.length > 0 ? (
                                 user.following.map(following => (
-                                    <div key={following._id} className="flex items-center space-x-4">
-                                        <img
-                                            src={following.avatarimg || '/resource/default-avatar.png'}
-                                            alt={following.username}
-                                            className="w-10 h-10 rounded-full"
-                                        />
-                                        <span>{following.avatarname}</span>
-                                    </div>
+                                    <Link to={`/${following.username}`}>
+                                        <div className="space-y-4 mt-4"></div>
+                                            <div key={following._id} className="flex items-center space-x-2">
+                                                <img
+                                                    src={following.avatarimg || '/resource/default-avatar.png'}
+                                                    alt={following.username}
+                                                    className="w-10 h-10 rounded-full"
+                                                />
+                                                <span>{following.avatarname || following.username}</span>
+                                                <UserBadges badges={following.badges} />
+                                                {console.log(`Following badges: ${following.badges}`)}
+                                            </div>
+                                    </Link>
                                 ))
                             ) : (
                                 <div className="p-4 bg-gray-100 rounded-lg text-center text-gray-500 dark:bg-gray-800">
@@ -218,7 +221,6 @@ function OtherUserProfileComponent() {
                                 </div>
                             )}
                         </div>
-                    </div>
                 )}
 
                 {/* 用户帖子展示 */}

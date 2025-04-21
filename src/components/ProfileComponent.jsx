@@ -21,8 +21,9 @@ function ProfileComponent() {
             // 用戶已登入，自動重定向到 /:username
             navigate(`/${currentUser.username}`);
         } else {
-            setLoading(false);
-            setError('Please log in to view your profile');
+            navigate(`/login`);
+            // setLoading(false);
+            // setError('Please log in to view your profile');
         }
     }, [currentUser, navigate]);
 
