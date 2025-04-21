@@ -1,10 +1,12 @@
 import React, { useState } from 'react';
 import config from '../config';
+import { useToast } from './ToastContext';
 
 function PostInput({ onPostSuccess }) {
     const [postContent, setPostContent] = useState("");
     const [loading, setLoading] = useState(false);
-    const [error, setError] = useState(null);  // Added error state
+    const [error, setError] = useState(null);
+    const { showToast } = useToast();
 
     const handlePostSubmit = async () => {
         if (!postContent.trim()) return;
@@ -15,7 +17,7 @@ function PostInput({ onPostSuccess }) {
         try {
             const token = JSON.parse(localStorage.getItem('user'))?.token;
             if (!token) {
-                alert("Not login");
+                showToast("Not login", 'error');
                 return;
             }
 

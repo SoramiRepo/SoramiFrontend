@@ -1,7 +1,7 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 
-function ReplyInput({ replyContent, setReplyContent, handleReplySubmit, isSubmitting, handlePostSuccess }) {
+function ReplyInput({ replyContent, setReplyContent, handleReplySubmit, isSubmitting, handleReplySuccess }) {
     const inputAnimation = {
         initial: { opacity: 0, height: 0, marginTop: 0 },
         animate: { opacity: 1, height: 'auto', marginTop: '10px' },
@@ -10,10 +10,9 @@ function ReplyInput({ replyContent, setReplyContent, handleReplySubmit, isSubmit
     };
 
     const submitReply = async () => {
-        // Call handleReplySubmit to submit the reply
-        const newPost = await handleReplySubmit(); // Make sure handleReplySubmit returns newPost
+        const newPost = await handleReplySubmit();
         if (newPost) {
-            handlePostSuccess(newPost); // Update post list with the new post
+            handleReplySuccess(newPost);
         }
     };
 

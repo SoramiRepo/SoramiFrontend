@@ -5,13 +5,14 @@ function ReplyList({ parentId, allPosts, onDelete }) {
     const [childPosts, setChildPosts] = useState([]);
 
     useEffect(() => {
-        // 筛选当前帖子下的所有回复
-        setChildPosts(allPosts.filter(post => post.parent === parentId));
+        // 获取父帖的所有子帖并按时间倒序排序
+        const filteredPosts = allPosts.filter(post => post.parent === parentId);
+        setChildPosts(filteredPosts.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt)));
     }, [allPosts, parentId]);
 
     // 处理新回复
     const handleReplySuccess = (newPost) => {
-        setChildPosts(prev => [...prev, newPost]);
+        setChildPosts(prev => [newPost, ...prev]);  // 将新回复放在最前面
     };
 
     if (childPosts.length === 0) return null;

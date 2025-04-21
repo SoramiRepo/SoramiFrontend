@@ -1,9 +1,10 @@
 import React, { useEffect, useState } from 'react';
-import { Link, useParams } from 'react-router-dom';
+import { Link, useParams, useNavigate } from 'react-router-dom';
 import config from '../config';
 import PostList from './PostList';
 import UserBadges from './UserBadges';
 import FollowBackIndicator from './FollowBackIndicator';
+import { useToast } from './ToastContext';
 
 function OtherUserProfileComponent() {
     const [user, setUser] = useState(null);
@@ -11,12 +12,13 @@ function OtherUserProfileComponent() {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const { username } = useParams();
-
+    const { showToast } = useToast();
     const [currentUserId, setCurrentUserId] = useState(null);
     const [token, setToken] = useState('');
     const [isFollowing, setIsFollowing] = useState(false);
     const [viewFollowers, setViewFollowers] = useState(false);
     const [viewFollowing, setViewFollowing] = useState(false);
+    const navigate = useNavigate();
 
     const handleDelete = (postId) => {
         setPosts(prev => prev.filter(post => post._id !== postId));
@@ -88,7 +90,7 @@ function OtherUserProfileComponent() {
 
     // 关注按钮
     const handleFollowToggle = async () => {
-        if (!token || !user) return alert('请先登录');
+        if (!token || !user) return showToast('Please login', 'error');
     
         const endpoint = isFollowing ? 'unfollow' : 'follow';
     
@@ -104,14 +106,13 @@ function OtherUserProfileComponent() {
             const result = await res.json();
     
             if (res.ok) {
-                // 切换关注状态
                 setIsFollowing(prevState => !prevState);
             } else {
-                alert(result.message || '操作失败');
+                showToast(result.message || 'Failed', 'error');
             }
         } catch (err) {
             console.error('Follow toggle error:', err);
-            alert('操作失败，请稍后重试');
+            showToast('Failed, please try again', 'error');
         }
     };
 
@@ -129,18 +130,28 @@ function OtherUserProfileComponent() {
                             alt="avatar"
                             className="w-24 h-24 rounded-full object-cover shadow-md"
                         />
-                        {currentUserId && user._id !== currentUserId && (
-                            <button
-                                onClick={handleFollowToggle}
-                                className={`mt-4 px-4 py-2 rounded-full text-sm font-medium transition ${
-                                    isFollowing
-                                        ? 'bg-gray-300 text-gray-800 hover:bg-gray-400'
-                                        : 'bg-blue-500 text-white hover:bg-blue-600'
-                                }`}
-                            >
-                                {isFollowing ? '取消关注' : '关注'}
-                            </button>
-                        )}
+                        {currentUserId ? (
+                            user._id !== currentUserId ? (
+                                <button
+                                    onClick={handleFollowToggle}
+                                    className={`mt-4 px-4 py-2 rounded-full text-sm font-medium transition ${
+                                        isFollowing
+                                            ? 'bg-gray-300 text-gray-800 hover:bg-gray-400'
+                                            : 'bg-blue-500 text-white hover:bg-blue-600'
+                                    }`}
+                                >
+                                    {isFollowing ? '取消关注' : '关注'}
+                                </button>
+                            ) : (
+                                <button
+                                    onClick={() => navigate('/edit-profile')}
+                                    className="mt-4 px-4 py-2 rounded-full text-sm font-medium transition bg-green-500 text-white hover:bg-green-600"
+                                >
+                                    编辑资料
+                                </button>
+                            )
+                        ) : null}
+
                         <h2 className="text-2xl font-semibold mt-4 text-gray-800 dark:text-gray-100 flex items-center">
                             <span>{user.avatarname || user.username}</span>
                             <UserBadges badges={user.badges} />
@@ -227,7 +238,7 @@ function OtherUserProfileComponent() {
                 {!viewFollowers && !viewFollowing && (
                     <div className="mt-6">
                         <h3 className="text-lg font-semibold text-gray-800 dark:text-gray-100">Posts</h3>
-                        <PostList posts={posts} onDelete={handleDelete} />
+                        <PostList posts={posts}  setPosts={setPosts} onDelete={handleDelete} />
                     </div>
                 )}
             </div>

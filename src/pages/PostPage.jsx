@@ -29,15 +29,22 @@ function PostPage() {
         fetchPost();
     }, [id]);
 
+    // 新的回调方法用于接收新回复并更新状态
+    const handleReplySuccess = (newPost) => {
+        console.log('New post added in PostPage:', newPost);
+        setReplies(prev => [...prev, newPost]);
+    };
+
     if (loading) return <div className="p-4 text-center">Loading...</div>;
     if (!post) return <div className="p-4 text-center text-red-500">Post not found</div>;
 
     return (
         <div className="p-4 max-w-2xl mx-auto">
             <h1 className="text-xl font-bold mb-4">Post</h1>
-            <PostContent 
-                post={post} 
-                allPosts={[post, ...replies]} 
+            <PostContent
+                post={post}
+                allPosts={[post, ...replies]}
+                onReplySuccess={handleReplySuccess} // 传递回调
                 defaultExpanded={true}
             />
         </div>

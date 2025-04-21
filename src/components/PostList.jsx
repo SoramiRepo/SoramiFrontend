@@ -9,6 +9,12 @@ function PostList({ posts, setPosts }) {
         setPosts(prev => prev.filter(post => post._id !== postId));
     };
 
+    const handleReplySuccess = (newPost) => {
+        console.log('Adding new post in PostList:', newPost); 
+        setPosts(prev => [...prev, newPost]);
+    };
+    
+
     if (!posts || posts.length === 0) {
         return <p className="text-gray-500 text-center">No Posts</p>;
     }
@@ -34,6 +40,7 @@ function PostList({ posts, setPosts }) {
                             post={post}
                             allPosts={posts}
                             onDelete={handleDelete}
+                            onReplySuccess={handleReplySuccess}
                         />
                     </div>
                 ))

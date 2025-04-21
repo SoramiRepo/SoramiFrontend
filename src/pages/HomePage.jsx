@@ -11,6 +11,7 @@ import ProfileComponent from '../components/ProfileComponent';
 import OtherUserProfileComponent from '../components/OtherUserProfileComponent';
 import SearchPage from './SearchPage'
 import PostPage from './PostPage';
+import EditProfile from '../components/EditProfile';
 
 function HomePage() {
     const [posts, setPosts] = useState([]);
@@ -66,6 +67,8 @@ function HomePage() {
                 {/* 根据路由渲染不同的内容 */}
                 {location.pathname === '/profile' ? (
                     <ProfileComponent />
+                ) : location.pathname === '/edit-profile' ? (
+                    <EditProfile />
                 ) : username && username !== 'profile' ? (
                     <OtherUserProfileComponent />
                 ) : location.pathname === '/search' ? (

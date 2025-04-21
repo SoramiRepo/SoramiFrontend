@@ -111,7 +111,7 @@ function SearchPage() {
                                 ) : (
                                     <div className="space-y-4">
                                         {/* 使用 PostList 来渲染帖子 */}
-                                        <PostList posts={posts} />
+                                        <PostList posts={posts}  setPosts={setPosts} />
                                     </div>
                                 )}
                             </div>

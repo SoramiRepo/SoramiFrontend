@@ -3,11 +3,7 @@ import React from 'react';
 function FollowBackIndicator({ currentUserId, followerList }) {
     if (!currentUserId || !Array.isArray(followerList)) return null;
 
-    console.log(`followerList: ${followerList}`)
-
     const followedMe = followerList.some(follower => String(follower._id) === String(currentUserId));
-
-    console.log(`followedMe: ${followedMe}`)
 
     if (!followedMe) return null;
 
