@@ -50,6 +50,7 @@ export default defineConfig({
           background_color: '#111827',
         },
       },
+      injectManifest: true,
     }),
   ],
 });
