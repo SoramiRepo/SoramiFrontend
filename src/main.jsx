@@ -8,6 +8,7 @@ import OtherUserProfileComponent from './components/OtherUserProfileComponent';
 import { ToastProvider } from './components/ToastContext';
 import SearchPage from './pages/SearchPage';
 import EditProfile from './components/EditProfile';
+import NotificationPage from './pages/NotificationPage';
 import './index.css';
 import PostPage from './pages/PostPage';
 
@@ -24,6 +25,7 @@ ReactDOM.createRoot(document.getElementById('root')).render(
           <Route path="/search" element={<SearchPage />} />
           <Route path="/:username" element={<OtherUserProfileComponent />} />
           <Route path="/edit-profile" element={<EditProfile />} />
+          <Route path="/notifications" element={<NotificationPage />} />
           <Route path="/post/:id" element={<PostPage />} />
         </Route>
       </Routes>

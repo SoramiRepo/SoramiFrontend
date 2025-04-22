@@ -8,6 +8,7 @@ import ReplyList from './ReplyList';
 import RepostBox from './RepostBox';
 import config from '../config';
 import { useToast } from './ToastContext';
+import { createNotification } from '../utils/notificationUtils'
 
 const getCurrentUserId = () => {
     try {
@@ -86,6 +87,7 @@ function PostContent({ post, allPosts = [], onDelete, onReplySuccess, defaultExp
                 onReplySuccess?.(result.reply);
                 setShowSuccess(true);
                 setTimeout(() => setShowSuccess(false), 2000);
+                await createNotification('reply', post.author, post._id, replyContent);
             } else {
                 showToast(result.message || 'Reply failed', 'error');
             }

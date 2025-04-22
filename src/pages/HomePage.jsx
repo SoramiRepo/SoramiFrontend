@@ -12,6 +12,7 @@ import OtherUserProfileComponent from '../components/OtherUserProfileComponent';
 import SearchPage from './SearchPage'
 import PostPage from './PostPage';
 import EditProfile from '../components/EditProfile';
+import NotificationPage from './NotificationPage';
 
 function HomePage() {
     const [posts, setPosts] = useState([]);
@@ -73,6 +74,8 @@ function HomePage() {
                     <OtherUserProfileComponent />
                 ) : location.pathname === '/search' ? (
                     <SearchPage />
+                ) : location.pathname === '/notifications' ? (
+                    <NotificationPage />
                 ) : location.pathname.startsWith('/post/') ?  
                 (
                     <PostPage />
