@@ -33,20 +33,32 @@ function HomePage() {
     const user = JSON.parse(localStorage.getItem('user'));
 
     useEffect(() => {
+        // Dynamically create the theme-color meta tag if it doesn't exist
+        let themeColorMetaTag = document.querySelector('meta[name="theme-color"]');
+        
+        if (!themeColorMetaTag) {
+            themeColorMetaTag = document.createElement('meta');
+            themeColorMetaTag.setAttribute('name', 'theme-color');
+            document.head.appendChild(themeColorMetaTag);
+        }
+    
         function updateThemeColor() {
             const darkModeMediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
-            const themeColorMetaTag = document.querySelector('meta[name="theme-color"]');
-
+            // Set the content of theme-color based on system preference
             if (darkModeMediaQuery.matches) {
-                    themeColorMetaTag.setAttribute('content', '#111827');
-                } else {
-                    themeColorMetaTag.setAttribute('content', '#F3F4F6');
-                }
+                themeColorMetaTag.setAttribute('content', '#111827'); // Dark mode color
+            } else {
+                themeColorMetaTag.setAttribute('content', '#f3f4f6'); // Light mode color
             }
-    
+        }
+        
+            // Initial theme color setup
             updateThemeColor();
+        
+            // Listen for changes in system theme preference
             window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', updateThemeColor);
-            
+        
+            // Cleanup listener when component unmounts
             return () => {
                 window.matchMedia('(prefers-color-scheme: dark)').removeEventListener('change', updateThemeColor);
             };
