@@ -33,6 +33,29 @@ function HomePage() {
     const user = JSON.parse(localStorage.getItem('user'));
 
     useEffect(() => {
+        const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
+        const setThemeColor = (isDarkMode) => {
+            const themeMetaTag = document.querySelector('meta[name="theme-color"]');
+            if (themeMetaTag) {
+                themeMetaTag.setAttribute('content', isDarkMode ? '#111827' : '#F3F4F6');
+            }
+        };
+
+        setThemeColor(mediaQuery.matches);
+
+        mediaQuery.addEventListener('change', (e) => {
+            setThemeColor(e.matches);
+        });
+    
+        return () => {
+            mediaQuery.removeEventListener('change', (e) => {
+                setThemeColor(e.matches);
+            });
+        };
+    }, []);
+
+    // 窗口标题
+    useEffect(() => {
         document.title = "Sorami";
     }, []);
 
