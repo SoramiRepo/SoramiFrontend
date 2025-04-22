@@ -23,8 +23,8 @@ export default defineConfig({
         name: 'Sorami',
         short_name: 'Sorami',
         description: 'A simple social platform',
-        theme_color: '#ffffff',
-        background_color: '#ffffff',
+        theme_color: '#F3F4F6',
+        background_color: '#F3F4F6',
         start_url: '/',
         display: 'standalone',
         icons: [
@@ -45,6 +45,10 @@ export default defineConfig({
             purpose: 'any maskable',
           },
         ],
+        dark_mode: {
+          theme_color: '#111827',
+          background_color: '#111827',
+        },
       },
     }),
   ],
