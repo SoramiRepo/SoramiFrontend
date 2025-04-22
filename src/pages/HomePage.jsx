@@ -32,37 +32,37 @@ function HomePage() {
 
     const user = JSON.parse(localStorage.getItem('user'));
 
-    useEffect(() => {
-        // Dynamically create the theme-color meta tag if it doesn't exist
-        let themeColorMetaTag = document.querySelector('meta[name="theme-color"]');
+    // useEffect(() => {
+    //     // Dynamically create the theme-color meta tag if it doesn't exist
+    //     let themeColorMetaTag = document.querySelector('meta[name="theme-color"]');
         
-        if (!themeColorMetaTag) {
-            themeColorMetaTag = document.createElement('meta');
-            themeColorMetaTag.setAttribute('name', 'theme-color');
-            document.head.appendChild(themeColorMetaTag);
-        }
+    //     if (!themeColorMetaTag) {
+    //         themeColorMetaTag = document.createElement('meta');
+    //         themeColorMetaTag.setAttribute('name', 'theme-color');
+    //         document.head.appendChild(themeColorMetaTag);
+    //     }
     
-        function updateThemeColor() {
-            const darkModeMediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
-            // Set the content of theme-color based on system preference
-            if (darkModeMediaQuery.matches) {
-                themeColorMetaTag.setAttribute('content', '#111827'); // Dark mode color
-            } else {
-                themeColorMetaTag.setAttribute('content', '#f3f4f6'); // Light mode color
-            }
-        }
+    //     function updateThemeColor() {
+    //         const darkModeMediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
+    //         // Set the content of theme-color based on system preference
+    //         if (darkModeMediaQuery.matches) {
+    //             themeColorMetaTag.setAttribute('content', '#111827'); // Dark mode color
+    //         } else {
+    //             themeColorMetaTag.setAttribute('content', '#f3f4f6'); // Light mode color
+    //         }
+    //     }
         
-            // Initial theme color setup
-            updateThemeColor();
+    //         // Initial theme color setup
+    //         updateThemeColor();
         
-            // Listen for changes in system theme preference
-            window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', updateThemeColor);
+    //         // Listen for changes in system theme preference
+    //         window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', updateThemeColor);
         
-            // Cleanup listener when component unmounts
-            return () => {
-                window.matchMedia('(prefers-color-scheme: dark)').removeEventListener('change', updateThemeColor);
-            };
-    }, []);
+    //         // Cleanup listener when component unmounts
+    //         return () => {
+    //             window.matchMedia('(prefers-color-scheme: dark)').removeEventListener('change', updateThemeColor);
+    //         };
+    // }, []);
 
     // 窗口标题
     useEffect(() => {
