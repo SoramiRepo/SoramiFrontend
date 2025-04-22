@@ -124,6 +124,7 @@ function PostContent({ post, allPosts = [], onDelete, onReplySuccess, defaultExp
 
                 {/* 按钮区 */}
                 <PostActions
+                    postId={post._id}
                     setShowReplyInput={setShowReplyInput}
                     setShowReplies={setShowReplies}
                     childPosts={childPosts}
