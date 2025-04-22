@@ -1,10 +1,11 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import PostHeader from './PostHeader';
 import PostBody from './PostBody';
 import PostActions from './PostActions';
 import ReplyInput from './ReplyInput';
 import ReplyList from './ReplyList';
+import RepostBox from './RepostBox';
 import config from '../config';
 import { useToast } from './ToastContext';
 
@@ -22,12 +23,13 @@ function PostContent({ post, allPosts = [], onDelete, onReplySuccess, defaultExp
     const [replyContent, setReplyContent] = useState('');
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [showReplyInput, setShowReplyInput] = useState(false);
+    const [showSuccess, setShowSuccess] = useState(false);
+
     const currentUserId = getCurrentUserId();
     const { showToast } = useToast();
-    const [showSuccess, setShowSuccess] = useState(false); // 用于显示成功提示
 
-    const childPosts = allPosts.filter(p => p.parent === post._id);  // 获取所有子回复
-    const parentPost = allPosts.find(p => p._id === post.parent);    // 获取父帖子
+    const childPosts = allPosts.filter(p => p.parent === post._id);
+    const parentPost = allPosts.find(p => p._id === post.parent);
 
     const handleDelete = async (e) => {
         e.stopPropagation();
@@ -59,14 +61,13 @@ function PostContent({ post, allPosts = [], onDelete, onReplySuccess, defaultExp
     };
 
     const handleReplySubmit = async () => {
-        console.log('Reply submit triggered');
         if (!replyContent.trim()) return;
-    
+
         const token = JSON.parse(localStorage.getItem('user'))?.token;
         if (!token) return showToast(`Not logged in, can't reply`, 'error');
-    
+
         setIsSubmitting(true);
-    
+
         try {
             const res = await fetch(`${config.apiBaseUrl}/api/post/reply/${post._id}`, {
                 method: 'POST',
@@ -76,23 +77,13 @@ function PostContent({ post, allPosts = [], onDelete, onReplySuccess, defaultExp
                 },
                 body: JSON.stringify({ content: replyContent }),
             });
-    
+
             const result = await res.json();
-    
-            console.log('Full Response:', result);
-    
+
             if (res.ok) {
                 setReplyContent('');
                 setShowReplies(true);
-                console.log('res.ok', res.ok);
-    
-                if (result.reply) {  // 这里更改为 result.reply
-                    console.log('result.reply', result.reply);  // 确保这里打印
-                    onReplySuccess?.(result.reply);
-                } else {
-                    console.error('No reply returned from server');
-                }
-    
+                onReplySuccess?.(result.reply);
                 setShowSuccess(true);
                 setTimeout(() => setShowSuccess(false), 2000);
             } else {
@@ -109,29 +100,30 @@ function PostContent({ post, allPosts = [], onDelete, onReplySuccess, defaultExp
     return (
         <AnimatePresence>
             <motion.div
-                key={post._id} // 为了触发动画，确保每个 Post 的 key 唯一
+                key={post._id}
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: 10 }} // 删除时淡出并向下移动
+                exit={{ opacity: 0, y: 10 }}
                 transition={{ duration: 0.3 }}
                 className="relative mx-auto flex max-w-full flex-col gap-y-4 rounded-xl bg-white p-6 shadow-lg outline outline-black/5 dark:bg-slate-800 dark:shadow-none dark:-outline-offset-1 dark:outline-white/10 dark:text-white"
             >
-                {/* 头像 + 名称 + 时间 */}
                 <PostHeader post={post} onDelete={handleDelete} currentUserId={currentUserId} parentPost={parentPost} />
 
-                {/* 正文 */}
+                {/* ✅ 转发内容 */}
+                <RepostBox repost={post.repost} />
+
                 <PostBody content={post.content} />
 
-                {/* 按钮区 */}
                 <PostActions
                     postId={post._id}
+                    originalPost={post}
                     setShowReplyInput={setShowReplyInput}
                     setShowReplies={setShowReplies}
                     childPosts={childPosts}
                     showReplies={showReplies}
+                    isRepost={!!post.repost}
                 />
 
-                {/* 回复输入框 */}
                 {showReplyInput && (
                     <>
                         <ReplyInput
@@ -140,8 +132,6 @@ function PostContent({ post, allPosts = [], onDelete, onReplySuccess, defaultExp
                             handleReplySubmit={handleReplySubmit}
                             isSubmitting={isSubmitting}
                         />
-
-                        {/* 回复成功动画 */}
                         <AnimatePresence>
                             {showSuccess && (
                                 <motion.div
@@ -158,7 +148,6 @@ function PostContent({ post, allPosts = [], onDelete, onReplySuccess, defaultExp
                     </>
                 )}
 
-                {/* 嵌套回复 */}
                 {showReplies && (
                     <ReplyList
                         parentId={post._id}

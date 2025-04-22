@@ -1,8 +1,17 @@
 import React from 'react';
-import { Share as ShareIcon, MessageCircle, ChevronDown, ChevronUp } from 'lucide-react';
+import { Share as ShareIcon, MessageCircle, ChevronDown, ChevronUp, Repeat2 } from 'lucide-react';
+import config from '../config';
 import { useToast } from './ToastContext';
 
-function PostActions({ setShowReplyInput, setShowReplies, childPosts, showReplies, postId }) {
+function PostActions({
+    setShowReplyInput,
+    setShowReplies,
+    childPosts,
+    showReplies,
+    postId,
+    onRepostClick,
+    originalPost
+}) {
     const baseUrl = window.location.origin;
     const { showToast } = useToast();
 
@@ -10,6 +19,50 @@ function PostActions({ setShowReplyInput, setShowReplies, childPosts, showReplie
         const fullUrl = `${baseUrl}/post/${postId}`;
         navigator.clipboard.writeText(fullUrl);
         showToast('Link copied!', 'success');
+    };
+
+    const handleRepost = async () => {
+        const token = JSON.parse(localStorage.getItem('user'))?.token;
+        
+        if (!token) {
+            showToast('Please login', 'error');
+            return;
+        }
+
+        if (!originalPost) {
+            showToast('Original post not found', 'error');
+            return;
+        }
+
+        try {
+            // 目前有bug，所以不要用
+            if (!originalPost.content) {
+                showToast('有bug，别用', 'error');
+                return;
+            }
+
+            const response = await fetch(`${config.apiBaseUrl}/api/post/repost`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`,
+                },
+                body: JSON.stringify({ repostId: postId }),
+            });
+    
+            const data = await response.json();
+    
+            if (response.ok) {
+                showToast('Reposted', 'success');
+                // Update the UI to show reposted post
+                onRepostClick?.(data.post); // Calling parent component's callback to update the UI
+            } else {
+                showToast(data.message || 'Repost Failed', 'error');
+            }
+        } catch (error) {
+            console.error('Repost error:', error);
+            showToast('Repost Failed', 'error');
+        }
     };
 
     return (
@@ -40,6 +93,14 @@ function PostActions({ setShowReplyInput, setShowReplies, childPosts, showReplie
             >
                 <ShareIcon size={16} />
                 <span className="hidden sm:inline">Share</span>
+            </button>
+
+            <button
+                onClick={handleRepost}
+                className="text-gray-500 hover:text-gray-700 flex items-center gap-1"
+            >
+                <Repeat2 size={16} />
+                <span className="hidden sm:inline">Repost</span>
             </button>
         </div>
     );
