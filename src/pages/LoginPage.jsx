@@ -5,7 +5,7 @@ import config from '../config';
 function LoginPage() {
     const [isLogin, setIsLogin] = useState(true);
     const [username, setUsername] = useState('');
-    const [avatarname, setAvatarname] = useState('');  // New field for registration
+    const [avatarname, setAvatarname] = useState('');
     const [password, setPassword] = useState('');
     const [loading, setLoading] = useState(false);
     const [message, setMessage] = useState('');
@@ -16,7 +16,7 @@ function LoginPage() {
         setLoading(true);
         setMessage('');
 
-        if (!username || !password || (isLogin ? false : !avatarname)) {
+        if (!username || !password || (!isLogin && !avatarname)) {
             setMessage('Please enter username, avatar name (for registration), and password');
             setLoading(false);
             return;
@@ -29,17 +29,17 @@ function LoginPage() {
         }
 
         try {
-            const url = isLogin ? `${config.apiBaseUrl}/api/user/login` : `${config.apiBaseUrl}/api/user/register`;
+            const url = isLogin
+                ? `${config.apiBaseUrl}/api/user/login`
+                : `${config.apiBaseUrl}/api/user/register`;
             const res = await fetch(url, {
                 method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
+                headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
                     username,
-                    avatarname: isLogin ? undefined : avatarname,  // Include avatarname only for registration
-                    password
-                })
+                    avatarname: isLogin ? undefined : avatarname,
+                    password,
+                }),
             });
 
             const data = await res.json();
@@ -48,11 +48,7 @@ function LoginPage() {
                 setMessage(data.message || 'Error');
             } else {
                 if (isLogin) {
-                    // On login success, save user information and token
-                    localStorage.setItem('user', JSON.stringify({
-                        ...data.user,
-                        token: data.token
-                    }));
+                    localStorage.setItem('user', JSON.stringify({ ...data.user, token: data.token }));
                     navigate('/');
                 } else {
                     setMessage('Registration successful, please log in');
@@ -68,8 +64,8 @@ function LoginPage() {
     };
 
     return (
-        <div className="flex justify-center items-center min-h-screen bg-gradient-to-br from-blue-100 to-purple-200 p-4">
-            <div className="bg-white p-8 rounded-xl shadow-md w-full max-w-md">
+        <div className="flex justify-center items-center min-h-screen bg-gradient-to-br from-blue-100 to-purple-200 dark:from-gray-900 dark:to-gray-800 p-4">
+            <div className="bg-white dark:bg-gray-900 dark:text-white p-8 rounded-xl shadow-md w-full max-w-md border dark:border-gray-700">
                 <h1 className="text-2xl font-bold text-center mb-6">{isLogin ? 'Login to Sorami' : 'Register for Sorami'}</h1>
 
                 {message && (
@@ -77,14 +73,13 @@ function LoginPage() {
                 )}
 
                 <form onSubmit={handleSubmit} className="space-y-4">
-                    {/* Show avatarname input only when registering */}
                     {!isLogin && (
                         <input
                             type="text"
                             placeholder="Avatar Name (for Registration)"
                             value={avatarname}
                             onChange={(e) => setAvatarname(e.target.value)}
-                            className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400"
+                            className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-800 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400"
                         />
                     )}
 
@@ -93,14 +88,15 @@ function LoginPage() {
                         placeholder="Username"
                         value={username}
                         onChange={(e) => setUsername(e.target.value)}
-                        className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400"
+                        className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-800 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400"
                     />
+
                     <input
                         type="password"
                         placeholder="Password"
                         value={password}
                         onChange={(e) => setPassword(e.target.value)}
-                        className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400"
+                        className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-800 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400"
                     />
 
                     <button
@@ -118,7 +114,7 @@ function LoginPage() {
                             setIsLogin(!isLogin);
                             setMessage('');
                         }}
-                        className="text-sm text-blue-600 hover:underline"
+                        className="text-sm text-blue-600 dark:text-blue-400 hover:underline"
                     >
                         {isLogin ? 'No account? Click here to register' : 'Already have an account? Click here to login'}
                     </button>

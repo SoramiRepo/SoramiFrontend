@@ -32,6 +32,10 @@ function HomePage() {
 
     const user = JSON.parse(localStorage.getItem('user'));
 
+    useEffect(() => {
+        document.title = "Sorami";
+    }, []);
+
     // PWA Test
     useEffect(() => {
         window.addEventListener('beforeinstallprompt', (e) => {

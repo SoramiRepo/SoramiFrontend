@@ -5,6 +5,7 @@ import UserBadges from '../components/UserBadges';
 import FollowBackIndicator from '../components/FollowBackIndicator';
 import { Link } from 'react-router-dom';
 
+
 function SearchPage() {
     const [keyword, setKeyword] = useState('');
     const [searchTerm, setSearchTerm] = useState('');
@@ -13,6 +14,10 @@ function SearchPage() {
     const [users, setUsers] = useState([]);
     const [posts, setPosts] = useState([]);
     const [loading, setLoading] = useState(false);
+
+    useEffect(() => {
+            document.title = "Sorami - Search";
+    }, []);
 
     useEffect(() => {
         const userData = JSON.parse(localStorage.getItem('user'));

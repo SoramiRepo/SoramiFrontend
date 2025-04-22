@@ -10,6 +10,10 @@ const NotificationPage = () => {
     const navigate = useNavigate();
 
     const token = JSON.parse(localStorage.getItem('user'))?.token;
+    
+    useEffect(() => {
+        document.title = "Sorami - Notifications";
+    }, []);
 
     useEffect(() => {
         const fetchNotifications = async () => {
