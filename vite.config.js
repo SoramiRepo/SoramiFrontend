@@ -14,6 +14,7 @@ export default defineConfig({
         'favicon.svg',
         'robots.txt',
         'apple-touch-icon.png',
+        'apple-touch-icon-precomposed.png',
         'resource/icons/dev.svg',
         'resource/icons/verified.svg',
         'resource/logo.png',
