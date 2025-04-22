@@ -3,6 +3,7 @@ export default {
     content: [
         "./src/**/*.{js,jsx,ts,tsx}", // 指定 TailwindCSS 扫描的文件路径
     ],
+    darkMode: 'media',
     theme: {
         extend: {
             colors: {
