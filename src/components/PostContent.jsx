@@ -8,7 +8,7 @@ import ReplyList from './ReplyList';
 import RepostBox from './RepostBox';
 import config from '../config';
 import { useToast } from './ToastContext';
-import { createNotification } from '../utils/notificationUtils'
+import { createNotification } from '../utils/notificationUtils.js'
 
 const getCurrentUserId = () => {
     try {

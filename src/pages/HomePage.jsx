@@ -13,12 +13,14 @@ import SearchPage from './SearchPage'
 import PostPage from './PostPage';
 import EditProfile from '../components/EditProfile';
 import NotificationPage from './NotificationPage';
+import InstallPWAButton from '../components/InstallPWAButton';
 
 function HomePage() {
     const [posts, setPosts] = useState([]);
     const [isSidebarOpen, setSidebarOpen] = useState(false);
     const location = useLocation();
     const { username } = useParams();
+    const [unreadCount, setUnreadCount] = useState(0);
 
     const handleSidebarToggle = () => {
         setSidebarOpen(!isSidebarOpen);
@@ -29,6 +31,15 @@ function HomePage() {
     };
 
     const user = JSON.parse(localStorage.getItem('user'));
+
+    // PWA Test
+    useEffect(() => {
+        window.addEventListener('beforeinstallprompt', (e) => {
+            e.preventDefault();
+            console.log('👍 App is installable!');
+          // 可以保存 e 并显示自定义“安装”按钮
+        });
+    }, []);
 
     // 这里加载帖子
     useEffect(() => {
@@ -41,11 +52,33 @@ function HomePage() {
         });
     }, []);
 
+    // 加载未读通知数量
+    useEffect(() => {
+        const fetchUnreadCount = async () => {
+            const token = JSON.parse(localStorage.getItem('user'))?.token;
+            if (!token) return;
+
+            try {
+                const res = await fetch(`${config.apiBaseUrl}/api/notification/unread-count`, {
+                    headers: { Authorization: `Bearer ${token}` },
+                });
+                const data = await res.json();
+                if (res.ok) {
+                    setUnreadCount(data.count);
+                }
+            } catch (err) {
+                console.error('Failed to get unread count:', err);
+            }
+        };
+
+        fetchUnreadCount();
+    }, []);
+
     // 始终渲染 Sidebar 和 NavBar，不受路由影响
     return (
         <div className="relative dark:bg-gray-900 min-h-screen bg-gray-100 overflow-x-hidden">
             {/* Sidebar */}
-            <Sidebar isOpen={isSidebarOpen} onClose={() => setSidebarOpen(false)} />
+            <Sidebar isOpen={isSidebarOpen} onClose={() => setSidebarOpen(false)} unreadCount={unreadCount} />
 
             {/* 遮罩层 */}
             {isSidebarOpen && (
@@ -89,6 +122,7 @@ function HomePage() {
                 )}
 
             </motion.div>
+            <InstallPWAButton />
         </div>
     );
 }

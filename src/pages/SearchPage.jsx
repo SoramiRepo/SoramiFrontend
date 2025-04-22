@@ -16,16 +16,13 @@ function SearchPage() {
 
     useEffect(() => {
         const userData = JSON.parse(localStorage.getItem('user'));
-        console.log(userData)
         if (userData) {
             setCurrentUserId(userData.id);
             setToken(userData.token);
         }
-        console.log(`userData.id: ${userData.id}`)
     }, []);
 
     const handleSearch = async (e) => {
-        console.log(`CurrentUserId: ${currentUserId}`)
         e.preventDefault();
         const trimmed = keyword.trim();
         if (!trimmed) return;
@@ -93,7 +90,6 @@ function SearchPage() {
                                                             {user.avatarname || user.username}
                                                             <UserBadges badges={user.badges} />
                                                             <FollowBackIndicator currentUserId={currentUserId} followerList={user.following} />
-                                                            {console.log(`user.following: ${user.following}`)}
                                                         </div>
                                                         <div className="text-sm text-gray-500">@{user.username}</div>
                                                     </div>
