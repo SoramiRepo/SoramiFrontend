@@ -5,6 +5,7 @@ import PostList from './PostList';
 import UserBadges from './UserBadges';
 import FollowBackIndicator from './FollowBackIndicator';
 import { useToast } from './ToastContext';
+import { useTranslation } from 'react-i18next';
 
 function OtherUserProfileComponent() {
     const [user, setUser] = useState(null);
@@ -19,12 +20,12 @@ function OtherUserProfileComponent() {
     const [viewFollowers, setViewFollowers] = useState(false);
     const [viewFollowing, setViewFollowing] = useState(false);
     const navigate = useNavigate();
+    const { t } = useTranslation();
 
     const handleDelete = (postId) => {
         setPosts(prev => prev.filter(post => post._id !== postId));
     };
 
-    // 获取当前登录用户信息
     useEffect(() => {
         const userData = JSON.parse(localStorage.getItem('user'));
         if (userData) {
@@ -32,13 +33,13 @@ function OtherUserProfileComponent() {
             setToken(userData.token);
         } else {
             setLoading(false);
-            setError('Please log in to view profiles');
+            setError(t('Please log in to view profiles'));
         }
     }, []);
 
     useEffect(() => {
         const fetchData = async () => {
-            if (!currentUserId) return; // 当前用户未加载时，跳过请求
+            if (!currentUserId) return;
     
             setLoading(true);
             try {
@@ -46,20 +47,12 @@ function OtherUserProfileComponent() {
                 const userData = await userRes.json();
     
                 if (!userRes.ok || !userData.user) {
-                    setError('User does not exist');
+                    setError(t('User does not exist'));
                     setLoading(false);
                     return;
                 }
     
-                // 确保 followers 是一个数组
                 const followers = Array.isArray(userData.user.followers) ? userData.user.followers : [];
-    
-                // 调试：打印 followers 数组的每个元素
-                followers.forEach((follower, index) => {
-                    console.log(`follower[${index}] ->`, follower, 'Type:', typeof follower);
-                });
-    
-                // 关注与被关注
                 const isUserFollowing = followers.some(follower => String(follower._id) === String(currentUserId));
     
                 setUser({
@@ -70,7 +63,6 @@ function OtherUserProfileComponent() {
                     followingCount: userData.user.following.length
                 });
     
-                // 更新是否关注
                 setIsFollowing(isUserFollowing);
     
                 const postsRes = await fetch(`${config.apiBaseUrl}/api/post/fetch?userId=${userData.user._id}&limit=20`);
@@ -80,7 +72,7 @@ function OtherUserProfileComponent() {
                 setLoading(false);
             } catch (err) {
                 console.error('Error loading user/posts:', err);
-                setError('Failed to load data');
+                setError(t('Failed to load data'));
                 setLoading(false);
             }
         };
@@ -88,9 +80,8 @@ function OtherUserProfileComponent() {
         fetchData();
     }, [username, currentUserId]);
 
-    // 关注按钮
     const handleFollowToggle = async () => {
-        if (!token || !user) return showToast('Please login', 'error');
+        if (!token || !user) return showToast(t('Please login'), 'error');
     
         const endpoint = isFollowing ? 'unfollow' : 'follow';
     
@@ -108,16 +99,15 @@ function OtherUserProfileComponent() {
             if (res.ok) {
                 setIsFollowing(prevState => !prevState);
             } else {
-                showToast(result.message || 'Failed', 'error');
+                showToast(result.message || t('Failed'), 'error');
             }
         } catch (err) {
             console.error('Follow toggle error:', err);
-            showToast('Failed, please try again', 'error');
+            showToast(t('Failed, please try again'), 'error');
         }
     };
 
-    // Loading and error states
-    if (loading) return <div className="p-10 text-center text-gray-500">Loading...</div>;
+    if (loading) return <div className="p-10 text-center text-gray-500">{t('Loading...')}</div>;
     if (error) return <div className="p-10 text-center text-red-500">{error}</div>;
 
     return (
@@ -140,14 +130,14 @@ function OtherUserProfileComponent() {
                                             : 'bg-blue-500 text-white hover:bg-blue-600'
                                     }`}
                                 >
-                                    {isFollowing ? '取消关注' : '关注'}
+                                    {isFollowing ? t('Unfollow') : t('Follow')}
                                 </button>
                             ) : (
                                 <button
                                     onClick={() => navigate('/edit-profile')}
                                     className="mt-4 px-4 py-2 rounded-full text-sm font-medium transition bg-green-500 text-white hover:bg-green-600"
                                 >
-                                    编辑资料
+                                    {t('Edit Profile')}
                                 </button>
                             )
                         ) : null}
@@ -161,27 +151,25 @@ function OtherUserProfileComponent() {
                         <p className="text-gray-500">@{user.username}</p>
                         <p className="mt-4 text-center text-gray-600 dark:text-gray-300">{user.bio || ''}</p>
                         <p className="mt-2 text-sm text-gray-400">
-                            Register Time: {new Date(user.registertime).toLocaleString()}
+                            {t('Register Time')}: {new Date(user.registertime).toLocaleString()}
                         </p>
 
-                        {/* 显示关注数和粉丝数 */}
                         <div className="mt-4 flex space-x-6 text-gray-600 dark:text-gray-300">
                             <button onClick={() => setViewFollowers(true)} className="flex items-center space-x-2">
                                 <span>{user.followersCount}</span>
-                                <span>Followers</span>
+                                <span>{t('Followers')}</span>
                             </button>
                             <button onClick={() => setViewFollowing(true)} className="flex items-center space-x-2">
                                 <span>{user.followingCount}</span>
-                                <span>Following</span>
+                                <span>{t('Following')}</span>
                             </button>
                         </div>
                     </div>
                 )}
 
-                {/* 关注者列表 */}
                 {viewFollowers && (
                     <div className="mt-6">
-                        <h3 className="text-lg font-semibold text-gray-800 dark:text-gray-100">Followers</h3>
+                        <h3 className="text-lg font-semibold text-gray-800 dark:text-gray-100">{t('Followers')}</h3>
                             {user.followers && user.followers.length > 0 ? (
                                 user.followers.map(follower => (
                                     <div className="space-y-4 mt-4">
@@ -200,16 +188,15 @@ function OtherUserProfileComponent() {
                                 ))
                             ) : (
                                 <div className="p-4 bg-gray-100 rounded-lg text-center text-gray-500 dark:bg-gray-800">
-                                    No followers yet.
+                                    {t('No followers yet.')}
                                 </div>
                             )}
                         </div>
                 )}
 
-                {/* 关注列表 */}
                 {viewFollowing && (
                     <div className="mt-6">
-                        <h3 className="text-lg font-semibold text-gray-800 dark:text-gray-100">Following</h3>
+                        <h3 className="text-lg font-semibold text-gray-800 dark:text-gray-100">{t('Following')}</h3>
                             {user.following && user.following.length > 0 ? (
                                 user.following.map(following => (
                                     <Link to={`/${following.username}`}>
@@ -222,22 +209,20 @@ function OtherUserProfileComponent() {
                                                 />
                                                 <span>{following.avatarname || following.username}</span>
                                                 <UserBadges badges={following.badges} />
-                                                {console.log(`Following badges: ${following.badges}`)}
                                             </div>
                                     </Link>
                                 ))
                             ) : (
                                 <div className="p-4 bg-gray-100 rounded-lg text-center text-gray-500 dark:bg-gray-800">
-                                    Not following anyone yet.
+                                    {t('Not following anyone yet.')}
                                 </div>
                             )}
                         </div>
                 )}
 
-                {/* 用户帖子展示 */}
                 {!viewFollowers && !viewFollowing && (
                     <div className="mt-6">
-                        <h3 className="text-lg font-semibold text-gray-800 dark:text-gray-100">Posts</h3>
+                        <h3 className="text-lg font-semibold text-gray-800 dark:text-gray-100">{t('Posts')}</h3>
                         <PostList posts={posts}  setPosts={setPosts} onDelete={handleDelete} />
                     </div>
                 )}

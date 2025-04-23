@@ -1,13 +1,14 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import config from '../config';
+import { useTranslation } from 'react-i18next';
 
 function ProfileComponent() {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const navigate = useNavigate();
+    const { t } = useTranslation();
 
-    // 嘗試從 localStorage 取得使用者資料
     let currentUser = null;
     try {
         const storedUser = localStorage.getItem('user');
@@ -18,24 +19,21 @@ function ProfileComponent() {
 
     useEffect(() => {
         if (currentUser) {
-            // 用戶已登入，自動重定向到 /:username
             navigate(`/${currentUser.username}`);
         } else {
             navigate(`/login`);
-            // setLoading(false);
-            // setError('Please log in to view your profile');
         }
     }, [currentUser, navigate]);
 
     if (loading) {
-        return <div className="p-10 text-center text-gray-500">Loading...</div>;
+        return <div className="p-10 text-center text-gray-500">{t('loading')}</div>;
     }
 
     if (error) {
         return <div className="p-10 text-center text-red-500">{error}</div>;
     }
 
-    return null; // 若無用戶資料，返回空頁面
+    return null;
 }
 
 export default ProfileComponent;

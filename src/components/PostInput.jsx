@@ -1,23 +1,25 @@
 import React, { useState } from 'react';
 import config from '../config';
 import { useToast } from './ToastContext';
+import { useTranslation } from 'react-i18next';
 
 function PostInput({ onPostSuccess }) {
     const [postContent, setPostContent] = useState("");
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
     const { showToast } = useToast();
+    const { t } = useTranslation();
 
     const handlePostSubmit = async () => {
         if (!postContent.trim()) return;
 
         setLoading(true);
-        setError(null);  // Reset error state on new submission
+        setError(null);
 
         try {
             const token = JSON.parse(localStorage.getItem('user'))?.token;
             if (!token) {
-                showToast("Not login", 'error');
+                showToast(t('notLogin'), 'error');
                 return;
             }
 
@@ -33,13 +35,13 @@ function PostInput({ onPostSuccess }) {
             const data = await res.json();
             if (res.ok) {
                 setPostContent("");
-                onPostSuccess(data.post);  // Update the parent state with new post
+                onPostSuccess(data.post);
             } else {
-                setError(data.message || 'Unknown Error');
+                setError(data.message || t('unknownError'));
             }
         } catch (err) {
             console.error(err);
-            setError("Post failed, please try again");
+            setError(t('postFailed'));
         } finally {
             setLoading(false);
         }
@@ -52,15 +54,15 @@ function PostInput({ onPostSuccess }) {
                 rows="4"
                 value={postContent}
                 onChange={(e) => setPostContent(e.target.value)}
-                placeholder="Share your idea here..."
+                placeholder={t('shareIdeaHere')}
             />
-            {error && <p className="text-red-600 mt-2">{error}</p>}  {/* Show error message */}
+            {error && <p className="text-red-600 mt-2">{error}</p>}
             <button
                 className="relative mt-2 bg-blue-600 text-white px-4 py-2 rounded-md disabled:opacity-50 disabled:cursor-not-allowed"
                 onClick={handlePostSubmit}
                 disabled={loading}
             >
-                {loading ? 'Posting...' : 'Post'}
+                {loading ? t('posting') : t('post')}
             </button>
         </div>
     );

@@ -19,6 +19,7 @@ export default defineConfig({
         'resource/icons/verified.svg',
         'resource/logo.png',
         'resource/default-avatar.png',
+        'resource/flags/*'
       ],
       manifest: {
         name: 'Sorami',

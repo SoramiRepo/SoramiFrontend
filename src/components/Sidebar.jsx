@@ -1,22 +1,37 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { NavLink } from 'react-router-dom';
 import { Home, Search, Bell, Mail, User } from 'lucide-react';
 import { motion } from 'framer-motion';
+import { useTranslation } from 'react-i18next';
 
 const menuItems = [
-    { name: 'Posts', icon: <Home size={20} />, path: '/' },
-    { name: 'Search', icon: <Search size={20} />, path: '/search' },
-    { name: 'Notifications', icon: <Bell size={20} />, path: '/notifications' },
-    { name: 'Messages', icon: <Mail size={20} />, path: '/messages' },
-    { name: 'Profile', icon: <User size={20} />, path: '/profile' },
+    { name: 'posts', icon: <Home size={20} />, path: '/' },
+    { name: 'search', icon: <Search size={20} />, path: '/search' },
+    { name: 'notifications', icon: <Bell size={20} />, path: '/notifications' },
+    { name: 'messages', icon: <Mail size={20} />, path: '/messages' },
+    { name: 'profile', icon: <User size={20} />, path: '/profile' },
 ];
 
 function Sidebar({ isOpen = false, onClose, unreadCount = 0 }) {
+    const { t, i18n } = useTranslation();
+    const [language, setLanguage] = useState(i18n.language);  // Store the current language
+
+    // Handle language change
+    const handleLanguageChange = (lang) => {
+        i18n.changeLanguage(lang); // Change the language using i18n
+        setLanguage(lang); // Update state to re-render component
+    };
+
+    useEffect(() => {
+        if (i18n.language !== language) {
+            setLanguage(i18n.language); // Sync state with i18n language change
+        }
+    }, [i18n.language, language]);
+
     return (
         <>
-            {/* 桌面端静态 Sidebar */}
             <div style={{ minHeight: 'calc(100vh - 10px)' }} className="hidden lg:block fixed top-1 left-1 z-50 w-72 bg-[#F6F8FA80] dark:bg-[#1e293b80] backdrop-blur-sm dark:text-white text-black p-6 shadow-lg rounded-xl">
-                <SidebarContent unreadCount={unreadCount} />
+                <SidebarContent unreadCount={unreadCount} t={t} onClose={onClose} handleLanguageChange={handleLanguageChange} />
             </div>
 
             <motion.div
@@ -34,19 +49,19 @@ function Sidebar({ isOpen = false, onClose, unreadCount = 0 }) {
                         &times;
                     </button>
                 </div>
-                <SidebarContent onClose={onClose} unreadCount={unreadCount} />
+                <SidebarContent onClose={onClose} unreadCount={unreadCount} t={t} handleLanguageChange={handleLanguageChange} />
             </motion.div>
         </>
     );
 }
 
-const SidebarContent = ({ onClose, unreadCount }) => {
+const SidebarContent = ({ onClose, unreadCount, t, handleLanguageChange }) => {
     return (
         <>
-            <h1 className="text-3xl font-bold mb-8 text-center">Sorami</h1>
+            <h1 className="text-3xl font-bold mb-8 text-center">{t('appName')}</h1>
             <ul className="space-y-5">
                 {menuItems.map((item, index) => {
-                    const isNotification = item.name === 'Notifications';
+                    const isNotification = item.name === 'notifications';
                     return (
                         <li key={index}>
                             <NavLink
@@ -60,7 +75,7 @@ const SidebarContent = ({ onClose, unreadCount }) => {
                                 }
                             >
                                 {item.icon}
-                                <span className="text-lg font-medium">{item.name}</span>
+                                <span className="text-lg font-medium">{t(item.name)}</span>
                                 {isNotification && unreadCount > 0 && (
                                     <span className="absolute -top-1 -right-2 bg-red-500 text-white text-xs font-bold px-1.5 py-0.5 rounded-full">
                                         {unreadCount > 99 ? '99+' : unreadCount}
@@ -71,6 +86,19 @@ const SidebarContent = ({ onClose, unreadCount }) => {
                     );
                 })}
             </ul>
+
+            {/* Language Switcher */}
+            <div className="mt-8 flex justify-center gap-4">
+                <button onClick={() => handleLanguageChange('en')} className="text-xl">
+                    <img src="/resource/flags/US.png" width={50} />
+                </button>
+                <button onClick={() => handleLanguageChange('cn')} className="text-xl">
+                    <img src="/resource/flags/CN.png" width={50} />
+                </button>
+                <button onClick={() => handleLanguageChange('tw')} className="text-xl">
+                    <img src="/resource/flags/TW.png" width={50} />
+                </button>
+            </div>
         </>
     );
 };

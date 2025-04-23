@@ -4,9 +4,10 @@ import PostList from '../components/PostList';
 import UserBadges from '../components/UserBadges';
 import FollowBackIndicator from '../components/FollowBackIndicator';
 import { Link } from 'react-router-dom';
-
+import { useTranslation } from 'react-i18next';
 
 function SearchPage() {
+    const { t } = useTranslation();
     const [keyword, setKeyword] = useState('');
     const [searchTerm, setSearchTerm] = useState('');
     const [currentUserId, setCurrentUserId] = useState(null);
@@ -16,8 +17,8 @@ function SearchPage() {
     const [loading, setLoading] = useState(false);
 
     useEffect(() => {
-            document.title = "Sorami - Search";
-    }, []);
+        document.title = "Sorami - " + t('search');
+    }, [t]);
 
     useEffect(() => {
         const userData = JSON.parse(localStorage.getItem('user'));
@@ -60,26 +61,26 @@ function SearchPage() {
                     type="text"
                     value={keyword}
                     onChange={(e) => setKeyword(e.target.value)}
-                    placeholder="Search users or posts..."
+                    placeholder={t('search_placeholder')}
                     className="border flex-1 px-4 py-2 rounded-lg border border-gray-300 dark:bg-slate-800 px-3 py-2 rounded w-full focus:border-1 focus:border-[#2B7FFF] focus:outline-none"
                 />
                 <button type="submit" className="bg-blue-500 text-white px-4 py-2 rounded">
-                    Search
+                    {t('search_button')}
                 </button>
             </form>
 
             {searchTerm && (
                 <>
-                    <h2 className="text-xl font-semibold mb-4">Search Results for: <span className="text-blue-600">{searchTerm}</span></h2>
+                    <h2 className="text-xl font-semibold mb-4">{t('search_results_for')}: <span className="text-blue-600">{searchTerm}</span></h2>
 
                     {loading ? (
-                        <p>Loading...</p>
+                        <p>{t('loading')}</p>
                     ) : (
                         <>
                             <div className="mb-6">
-                                <h3 className="text-lg font-semibold mb-2">Users</h3>
+                                <h3 className="text-lg font-semibold mb-2">{t('users')}</h3>
                                 {users.length === 0 ? (
-                                    <p className="text-gray-500">No users found</p>
+                                    <p className="text-gray-500">{t('no_users_found')}</p>
                                 ) : (
                                     <ul className="space-y-2">
                                         {users.map(user => (
@@ -106,12 +107,11 @@ function SearchPage() {
                             </div>
 
                             <div>
-                                <h3 className="text-lg font-semibold mb-2">Posts</h3>
+                                <h3 className="text-lg font-semibold mb-2">{t('posts')}</h3>
                                 {posts.length === 0 ? (
-                                    <p className="text-gray-500">No posts found</p>
+                                    <p className="text-gray-500">{t('no_posts_found')}</p>
                                 ) : (
                                     <div className="space-y-4">
-                                        {/* 使用 PostList 来渲染帖子 */}
                                         <PostList posts={posts}  setPosts={setPosts} />
                                     </div>
                                 )}

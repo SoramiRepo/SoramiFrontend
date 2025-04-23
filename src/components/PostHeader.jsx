@@ -2,8 +2,10 @@ import React from 'react';
 import { format } from 'timeago.js';
 import { Link } from 'react-router-dom';
 import UserBadges from './UserBadges';
+import { useTranslation } from 'react-i18next';
 
 function PostHeader({ post, onDelete, currentUserId, parentPost, deleting }) {
+    const { t } = useTranslation();
     return (
         <div className="flex items-start gap-x-4 relative">
             <Link to={`/${post.author?.username}`}>
@@ -36,7 +38,7 @@ function PostHeader({ post, onDelete, currentUserId, parentPost, deleting }) {
                     {deleting ? (
                         <span className="loader border-red-500"></span>
                     ) : (
-                        'Delete'
+                        t('delete')
                     )}
                 </button>
             )}

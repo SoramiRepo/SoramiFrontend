@@ -2,6 +2,7 @@ import React from 'react';
 import { Share as ShareIcon, MessageCircle, ChevronDown, ChevronUp, Repeat2 } from 'lucide-react';
 import config from '../config';
 import { useToast } from './ToastContext';
+import { useTranslation } from 'react-i18next';
 
 function PostActions({
     setShowReplyInput,
@@ -14,30 +15,30 @@ function PostActions({
 }) {
     const baseUrl = window.location.origin;
     const { showToast } = useToast();
+    const { t } = useTranslation();
 
     const handleShare = () => {
         const fullUrl = `${baseUrl}/post/${postId}`;
         navigator.clipboard.writeText(fullUrl);
-        showToast('Link copied!', 'success');
+        showToast(t('linkCopied'), 'success');
     };
 
     const handleRepost = async () => {
         const token = JSON.parse(localStorage.getItem('user'))?.token;
         
         if (!token) {
-            showToast('Please login', 'error');
+            showToast(t('pleaseLogin'), 'error');
             return;
         }
 
         if (!originalPost) {
-            showToast('Original post not found', 'error');
+            showToast(t('originalPostNotFound'), 'error');
             return;
         }
 
         try {
-            // 目前有bug，所以不要用
             if (!originalPost.content) {
-                showToast('有bug，别用', 'error');
+                showToast(t('bugFound'), 'error');
                 return;
             }
 
@@ -53,15 +54,14 @@ function PostActions({
             const data = await response.json();
     
             if (response.ok) {
-                showToast('Reposted', 'success');
-                // Update the UI to show reposted post
-                onRepostClick?.(data.post); // Calling parent component's callback to update the UI
+                showToast(t('reposted'), 'success');
+                onRepostClick?.(data.post);
             } else {
-                showToast(data.message || 'Repost Failed', 'error');
+                showToast(data.message || t('repostFailed'), 'error');
             }
         } catch (error) {
             console.error('Repost error:', error);
-            showToast('Repost Failed', 'error');
+            showToast(t('repostFailed'), 'error');
         }
     };
 
@@ -73,7 +73,7 @@ function PostActions({
                     className="text-blue-500 hover:text-blue-700 flex items-center gap-1"
                 >
                     <MessageCircle size={16} />
-                    <span className="hidden sm:inline">Reply</span>
+                    <span className="hidden sm:inline">{t('reply')}</span>
                 </button>
                 {childPosts.length > 0 && (
                     <button
@@ -82,7 +82,7 @@ function PostActions({
                     >
                         {showReplies ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
                         <span className="hidden sm:inline">
-                            {showReplies ? 'Close replies' : 'Expand Replies'}
+                            {showReplies ? t('closeReplies') : t('expandReplies')}
                         </span>
                     </button>
                 )}
@@ -92,7 +92,7 @@ function PostActions({
                 className="ml-auto text-gray-500 hover:text-gray-700 flex items-center gap-1"
             >
                 <ShareIcon size={16} />
-                <span className="hidden sm:inline">Share</span>
+                <span className="hidden sm:inline">{t('share')}</span>
             </button>
 
             <button
@@ -100,7 +100,7 @@ function PostActions({
                 className="text-gray-500 hover:text-gray-700 flex items-center gap-1"
             >
                 <Repeat2 size={16} />
-                <span className="hidden sm:inline">Repost</span>
+                <span className="hidden sm:inline">{t('repost')}</span>
             </button>
         </div>
     );

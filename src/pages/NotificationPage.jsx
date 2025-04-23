@@ -3,17 +3,19 @@ import { Link, useNavigate } from 'react-router-dom';
 import config from '../config';
 import { formatDistanceToNow } from 'date-fns';
 import cn from "../utils/cn";
+import { useTranslation } from 'react-i18next';
 
 const NotificationPage = () => {
     const [notifications, setNotifications] = useState([]);
     const [loading, setLoading] = useState(true);
     const navigate = useNavigate();
+    const { t } = useTranslation();
 
     const token = JSON.parse(localStorage.getItem('user'))?.token;
     
     useEffect(() => {
-        document.title = "Sorami - Notifications";
-    }, []);
+        document.title = t('notifications_title');
+    }, [t]);
 
     useEffect(() => {
         const fetchNotifications = async () => {
@@ -39,18 +41,18 @@ const NotificationPage = () => {
     }, [token]);
 
     const renderMessage = (n) => {
-        const from = n.from?.username || 'Unknown User';
+        const from = n.from?.username || t('unknown_user');
         switch (n.type) {
             case 'like':
-                return `@${from} Liked your post`;
+                return `@${from} ${t('notification_like')}`;
             case 'reply':
-                return `@${from} Replied you: ${n.message}`;
+                return `@${from} ${t('notification_reply')}: ${n.message}`;
             case 'follow':
-                return `@${from} Followed you`;
+                return `@${from} ${t('notification_follow')}`;
             case 'repost':
-                return `@${from} Reposted from you`;
+                return `@${from} ${t('notification_repost')}`;
             default:
-                return n.message || 'You have a new notification';
+                return n.message || t('notification_new');
         }
     };
 
@@ -92,24 +94,24 @@ const NotificationPage = () => {
         navigate(`/post/${n.post._id}`);
     };
 
-    if (loading) return <div className="p-4 text-center">Loading...</div>;
+    if (loading) return <div className="p-4 text-center">{t('loading')}</div>;
 
     return (
         <div className="p-4 max-w-2xl mx-auto bg-white dark:bg-slate-900 min-h-screen">
             <div className="flex justify-between items-center mb-4">
-                <h1 className="text-xl font-bold text-gray-900 dark:text-white">Notifications</h1>
+                <h1 className="text-xl font-bold text-gray-900 dark:text-white">{t('notifications')}</h1>
                 {notifications.some((n) => !n.isRead) && (
                     <button
                         onClick={markAllAsRead}
                         className="text-sm text-blue-500 hover:underline dark:text-blue-400"
                     >
-                        Mark all as read
+                        {t('mark_all_read')}
                     </button>
                 )}
             </div>
     
             {notifications.length === 0 ? (
-                <p className="text-gray-500 dark:text-gray-400">Nothing here</p>
+                <p className="text-gray-500 dark:text-gray-400">{t('no_notifications')}</p>
             ) : (
                 <ul className="space-y-3">
                     {notifications.map((n) => (
@@ -135,7 +137,7 @@ const NotificationPage = () => {
                                             onClick={() => handleView(n)}
                                             className="ml-2 text-blue-500 hover:underline dark:text-blue-400"
                                         >
-                                            View
+                                            {t('view')}
                                         </button>
                                     )}
                                 </p>
@@ -149,7 +151,6 @@ const NotificationPage = () => {
             )}
         </div>
     );
-    
 };
 
 export default NotificationPage;

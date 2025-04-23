@@ -1,53 +1,36 @@
-import React from 'react';
-import ReactDOM from 'react-dom/client';
-import { BrowserRouter, Routes, Route } from 'react-router-dom';
-import HomePage from './pages/HomePage';
-import LoginPage from './pages/LoginPage';
-import ProfileComponent from './components/ProfileComponent';
-import OtherUserProfileComponent from './components/OtherUserProfileComponent';
-import { ToastProvider } from './components/ToastContext';
-import SearchPage from './pages/SearchPage';
-import EditProfile from './components/EditProfile';
-import NotificationPage from './pages/NotificationPage';
-import './index.css';
-import PostPage from './pages/PostPage';
-import { registerSW } from 'virtual:pwa-register';
+import React from 'react'
+import ReactDOM from 'react-dom/client'
+import { BrowserRouter } from 'react-router-dom'
+import { I18nextProvider } from 'react-i18next'
+import i18n from './i18n'
+import App from './App'
+import { ToastProvider } from './components/ToastContext'
+import './index.css'
+import { registerSW } from 'virtual:pwa-register'
+
+window.i18n = i18n;
 
 if ('serviceWorker' in navigator) {
-  window.addEventListener('load', () => {
-      navigator.serviceWorker
-          .register('/sw.js')
-          .then((registration) => {
-              console.log('Service Worker registered:', registration);
-          })
-          .catch((error) => {
-              console.error('Service Worker registration failed:', error);
-          });
-  });
+    window.addEventListener('load', () => {
+        navigator.serviceWorker
+            .register('/sw.js')
+            .then(reg => console.log('Service Worker registered:', reg))
+            .catch(err => console.error('SW registration failed:', err))
+    })
 }
 
+registerSW()
 
-registerSW();
+const root = ReactDOM.createRoot(document.getElementById('root'))
+root.render(
+    <I18nextProvider i18n={i18n}>
+        <React.StrictMode>
+            <BrowserRouter>
+                <ToastProvider>
+                    <App />
+                </ToastProvider>
+            </BrowserRouter>
+        </React.StrictMode>
+    </I18nextProvider>
+)
 
-ReactDOM.createRoot(document.getElementById('root')).render(
-  <React.StrictMode>
-    <BrowserRouter>
-    <ToastProvider>
-    <Routes>
-        <Route path="/login" element={<LoginPage />} />
-
-        {/* HomePage 作为 Layout 外壳 */}
-        <Route path="/" element={<HomePage />}>
-          <Route path="/profile" element={<ProfileComponent />} />
-          <Route path="/search" element={<SearchPage />} />
-          <Route path="/:username" element={<OtherUserProfileComponent />} />
-          <Route path="/edit-profile" element={<EditProfile />} />
-          <Route path="/notifications" element={<NotificationPage />} />
-          <Route path="/post/:id" element={<PostPage />} />
-        </Route>
-      </Routes>
-    </ToastProvider>
-      
-    </BrowserRouter>
-  </React.StrictMode>
-);

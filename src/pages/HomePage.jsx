@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { useLocation, useParams } from 'react-router-dom';
 import config from '../config';
-
+import i18n from '../i18n'
 import NavBar from '../components/NavBar'; // 引入 NavBar 组件
 import Sidebar from '../components/Sidebar';
 import PostInput from '../components/PostInput';
@@ -14,8 +14,10 @@ import PostPage from './PostPage';
 import EditProfile from '../components/EditProfile';
 import NotificationPage from './NotificationPage';
 import InstallPWAButton from '../components/InstallPWAButton';
+import { useTranslation } from 'react-i18next'
 
 function HomePage() {
+    const { t } = useTranslation()
     const [posts, setPosts] = useState([]);
     const [isSidebarOpen, setSidebarOpen] = useState(false);
     const location = useLocation();
@@ -32,8 +34,16 @@ function HomePage() {
 
     const user = JSON.parse(localStorage.getItem('user'));
 
+    // useEffect(() => {
+    //     const languageFromStorage = localStorage.getItem('i18nextLng');
+    //     console.log('Stored language:', languageFromStorage);
+    //     if (languageFromStorage && languageFromStorage !== i18n.language) {
+    //         console.log(`language changed`)
+    //         i18n.changeLanguage(languageFromStorage);
+    //     }
+    // }, []);
+
     useEffect(() => {
-        // Dynamically create the theme-color meta tag if it doesn't exist
         let themeColorMetaTag = document.querySelector('meta[name="theme-color"]');
         
         if (!themeColorMetaTag) {
@@ -44,21 +54,17 @@ function HomePage() {
     
         function updateThemeColor() {
             const darkModeMediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
-            // Set the content of theme-color based on system preference
             if (darkModeMediaQuery.matches) {
-                themeColorMetaTag.setAttribute('content', '#111827'); // Dark mode color
+                themeColorMetaTag.setAttribute('content', '#111827');
             } else {
-                themeColorMetaTag.setAttribute('content', '#f3f4f6'); // Light mode color
+                themeColorMetaTag.setAttribute('content', '#f3f4f6');
             }
         }
         
-            // Initial theme color setup
             updateThemeColor();
         
-            // Listen for changes in system theme preference
             window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', updateThemeColor);
         
-            // Cleanup listener when component unmounts
             return () => {
                 window.matchMedia('(prefers-color-scheme: dark)').removeEventListener('change', updateThemeColor);
             };

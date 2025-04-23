@@ -2,12 +2,11 @@ import React from 'react';
 import { useLocation, Link } from 'react-router-dom';
 
 function NavBar({ handleSidebarToggle, isSidebarOpen, user }) {
-    const location = useLocation(); // 获取当前路由位置
+    const location = useLocation();
 
     return (
         <div className="fixed top-0 left-0 w-full bg-[#F6F8FA80] dark:bg-[#33415550] py-4 px-6 shadow-lg z-40 backdrop-blur-xs">
             <div className="flex items-center justify-between relative h-[50px] max-h-[50px]">
-                {/* 左侧：菜单按钮 */}
                 {!isSidebarOpen && (
                     <button
                         onClick={handleSidebarToggle}
@@ -19,12 +18,10 @@ function NavBar({ handleSidebarToggle, isSidebarOpen, user }) {
                     </button>
                 )}
 
-                {/* 中间：Logo */}
                 <div className="absolute left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2">
                     <img src="/resource/logo.png" alt="Logo" className="w-[40px]" />
                 </div>
 
-                {/* 右侧：头像 */}
                 <div>
                     <Link to="/profile">
                         <img

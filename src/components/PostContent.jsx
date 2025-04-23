@@ -9,6 +9,7 @@ import RepostBox from './RepostBox';
 import config from '../config';
 import { useToast } from './ToastContext';
 import { createNotification } from '../utils/notificationUtils.js'
+import { useTranslation } from 'react-i18next';
 
 const getCurrentUserId = () => {
     try {
@@ -25,7 +26,7 @@ function PostContent({ post, allPosts = [], onDelete, onReplySuccess, defaultExp
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [showReplyInput, setShowReplyInput] = useState(false);
     const [showSuccess, setShowSuccess] = useState(false);
-
+    const { t } = useTranslation();
     const currentUserId = getCurrentUserId();
     const { showToast } = useToast();
 
@@ -111,7 +112,6 @@ function PostContent({ post, allPosts = [], onDelete, onReplySuccess, defaultExp
             >
                 <PostHeader post={post} onDelete={handleDelete} currentUserId={currentUserId} parentPost={parentPost} />
 
-                {/* ✅ 转发内容 */}
                 <RepostBox repost={post.repost} />
 
                 <PostBody content={post.content} />
@@ -143,7 +143,7 @@ function PostContent({ post, allPosts = [], onDelete, onReplySuccess, defaultExp
                                     transition={{ duration: 0.3 }}
                                     className="text-green-500 text-sm font-semibold mt-2 ml-0 sm:ml-10"
                                 >
-                                    ✅ Reply posted successfully!
+                                    {t('reply_post_success')}
                                 </motion.div>
                             )}
                         </AnimatePresence>

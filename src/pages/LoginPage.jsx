@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import config from '../config';
+import { useTranslation } from 'react-i18next';
 
 function LoginPage() {
     const [isLogin, setIsLogin] = useState(true);
@@ -9,6 +10,7 @@ function LoginPage() {
     const [password, setPassword] = useState('');
     const [loading, setLoading] = useState(false);
     const [message, setMessage] = useState('');
+    const { t } = useTranslation();
     const navigate = useNavigate();
 
     const handleSubmit = async (e) => {
@@ -17,13 +19,19 @@ function LoginPage() {
         setMessage('');
 
         if (!username || !password || (!isLogin && !avatarname)) {
-            setMessage('Please enter username, avatar name (for registration), and password');
+            setMessage(
+              !username
+                ? t('username_required')
+                : !password
+                  ? t('password_required')
+                  : t('avatarname_required')
+            );
             setLoading(false);
             return;
         }
 
         if (password.length < 6) {
-            setMessage('Password must be at least 6 characters');
+            setMessage(t('password_min_length'));
             setLoading(false);
             return;
         }
@@ -43,21 +51,23 @@ function LoginPage() {
             });
 
             const data = await res.json();
-
             if (!res.ok) {
-                setMessage(data.message || 'Error');
+                setMessage(data.message || t('network_error'));
             } else {
                 if (isLogin) {
-                    localStorage.setItem('user', JSON.stringify({ ...data.user, token: data.token }));
+                    localStorage.setItem(
+                      'user',
+                      JSON.stringify({ ...data.user, token: data.token })
+                    );
                     navigate('/');
                 } else {
-                    setMessage('Registration successful, please log in');
+                    setMessage(t('register_for_sorami'));
                     setIsLogin(true);
                 }
             }
         } catch (err) {
-            setMessage('Network Error');
             console.error(err);
+            setMessage(t('network_error'));
         }
 
         setLoading(false);
@@ -65,18 +75,22 @@ function LoginPage() {
 
     return (
         <div className="flex justify-center items-center min-h-screen bg-gradient-to-br from-blue-100 to-purple-200 dark:from-gray-900 dark:to-gray-800 p-4">
-            <div className="bg-white dark:bg-gray-900 dark:text-white p-8 rounded-xl shadow-md w-full max-w-md border dark:border-gray-700">
-                <h1 className="text-2xl font-bold text-center mb-6">{isLogin ? 'Login to Sorami' : 'Register for Sorami'}</h1>
+            <div className="bg-white dark:bg-gray-900 dark:text-white p-8 rounded-xl shadow-md w-full max-w-md border-0 dark:border-gray-700">
+                <h1 className="text-2xl font-bold text-center mb-6">
+                    {isLogin ? t('login_to_sorami') : t('register_for_sorami')}
+                </h1>
 
                 {message && (
-                    <div className="mb-4 text-sm text-red-500 text-center">{message}</div>
+                    <div className="mb-4 text-sm text-red-500 text-center">
+                        {message}
+                    </div>
                 )}
 
                 <form onSubmit={handleSubmit} className="space-y-4">
                     {!isLogin && (
                         <input
                             type="text"
-                            placeholder="Avatar Name (for Registration)"
+                            placeholder={t('avatarname_required')}
                             value={avatarname}
                             onChange={(e) => setAvatarname(e.target.value)}
                             className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-800 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400"
@@ -85,7 +99,7 @@ function LoginPage() {
 
                     <input
                         type="text"
-                        placeholder="Username"
+                        placeholder={t('username_required')}
                         value={username}
                         onChange={(e) => setUsername(e.target.value)}
                         className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-800 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400"
@@ -93,7 +107,7 @@ function LoginPage() {
 
                     <input
                         type="password"
-                        placeholder="Password"
+                        placeholder={t('password_required')}
                         value={password}
                         onChange={(e) => setPassword(e.target.value)}
                         className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-800 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-400"
@@ -104,7 +118,11 @@ function LoginPage() {
                         className="w-full bg-blue-600 text-white py-2 rounded-md hover:bg-blue-700 transition"
                         disabled={loading}
                     >
-                        {loading ? 'Submitting...' : isLogin ? 'Login' : 'Register'}
+                        {loading
+                            ? t('submit')
+                            : isLogin
+                            ? t('login')
+                            : t('register')}
                     </button>
                 </form>
 
@@ -116,7 +134,7 @@ function LoginPage() {
                         }}
                         className="text-sm text-blue-600 dark:text-blue-400 hover:underline"
                     >
-                        {isLogin ? 'No account? Click here to register' : 'Already have an account? Click here to login'}
+                        {isLogin ? t('no_account') : t('have_account')}
                     </button>
                 </div>
             </div>

@@ -10,9 +10,8 @@ function ReplyList({ parentId, allPosts, onDelete }) {
         setChildPosts(filteredPosts.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt)));
     }, [allPosts, parentId]);
 
-    // 处理新回复
     const handleReplySuccess = (newPost) => {
-        setChildPosts(prev => [newPost, ...prev]);  // 将新回复放在最前面
+        setChildPosts(prev => [newPost, ...prev]);
     };
 
     if (childPosts.length === 0) return null;
@@ -25,7 +24,7 @@ function ReplyList({ parentId, allPosts, onDelete }) {
                     post={child}
                     allPosts={allPosts}
                     onDelete={onDelete}
-                    onReplySuccess={handleReplySuccess} // 传递给 PostContent 处理回复
+                    onReplySuccess={handleReplySuccess}
                 />
             ))}
         </div>

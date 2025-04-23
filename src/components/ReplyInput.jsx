@@ -1,7 +1,10 @@
 import React from 'react';
 import { motion } from 'framer-motion';
+import { useTranslation } from 'react-i18next';
 
 function ReplyInput({ replyContent, setReplyContent, handleReplySubmit, isSubmitting, handleReplySuccess }) {
+    const { t } = useTranslation();
+
     const inputAnimation = {
         initial: { opacity: 0, height: 0, marginTop: 0 },
         animate: { opacity: 1, height: 'auto', marginTop: '10px' },
@@ -26,18 +29,18 @@ function ReplyInput({ replyContent, setReplyContent, handleReplySubmit, isSubmit
         >
             <input
                 type="text"
-                placeholder="Write your reply..."
+                placeholder={t('writeReply')}
                 className="flex-1 px-4 py-2 rounded-lg border border-gray-300 dark:bg-slate-800 focus:border-1 focus:border-[#2B7FFF] focus:outline-none"
                 value={replyContent}
-                onChange={(e) => setReplyContent(e.target.value)}  // Update replyContent as user types
+                onChange={(e) => setReplyContent(e.target.value)}
             />
 
             <button
                 onClick={submitReply}
                 className={`px-4 py-2 bg-blue-500 text-white rounded-lg ${isSubmitting ? 'cursor-wait' : ''}`}
-                disabled={isSubmitting}  // Disable button if submitting
+                disabled={isSubmitting}
             >
-                {isSubmitting ? 'Replying...' : 'Reply'}
+                {isSubmitting ? t('replying') : t('reply')}
             </button>
         </motion.div>
     );
