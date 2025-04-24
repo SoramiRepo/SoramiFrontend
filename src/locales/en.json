@@ -91,5 +91,6 @@
     "appName": "Sorami",
     "messages": "Messages",
     "profile": "Profile",
-    "install_sorami": "Install Sorami"
+    "install_sorami": "Install Sorami",
+    "forgot_password": "Reset Password"
 }

@@ -9,6 +9,7 @@ import SearchPage from './pages/SearchPage'
 import EditProfile from './components/EditProfile'
 import NotificationPage from './pages/NotificationPage'
 import PostPage from './pages/PostPage'
+import ResetPwd from './pages/ResetPwd'
 
 export default function App() {
     useEffect(() => {
@@ -21,6 +22,7 @@ export default function App() {
     return (
         <Routes>
             <Route path="/login" element={<LoginPage />} />
+            <Route path="/resetpwd" element={<ResetPwd />} />
             <Route path="/" element={<HomePage />}>
                 <Route path="profile" element={<ProfileComponent />} />
                 <Route path="search" element={<SearchPage />} />

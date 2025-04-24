@@ -20,11 +20,11 @@ function LoginPage() {
 
         if (!username || !password || (!isLogin && !avatarname)) {
             setMessage(
-              !username
-                ? t('username_required')
-                : !password
-                  ? t('password_required')
-                  : t('avatarname_required')
+                !username
+                    ? t('username_required')
+                    : !password
+                        ? t('password_required')
+                        : t('avatarname_required')
             );
             setLoading(false);
             return;

@@ -91,5 +91,6 @@
     "appName": "Sorami",
     "messages": "消息",
     "profile": "个人资料",
-    "install_sorami": "安装 Sorami"
+    "install_sorami": "安装 Sorami",
+    "forgot_password": "Reset Password"
 }
