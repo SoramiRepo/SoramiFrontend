@@ -98,6 +98,9 @@ const SidebarContent = ({ onClose, unreadCount, t, handleLanguageChange }) => {
                 <button onClick={() => handleLanguageChange('tw')} className="text-xl">
                     <img src="/resource/flags/TW.png" width={50} />
                 </button>
+                <button onClick={() => handleLanguageChange('jp')} className="text-xl">
+                    <img src="/resource/flags/JP.png" width={50} />
+                </button>
             </div>
         </>
     );
