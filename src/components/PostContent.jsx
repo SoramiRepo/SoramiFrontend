@@ -124,6 +124,8 @@ function PostContent({ post, allPosts = [], onDelete, onReplySuccess, defaultExp
                     childPosts={childPosts}
                     showReplies={showReplies}
                     isRepost={!!post.repost}
+                    initialLiked={post.isLiked}
+                    initialLikeCount={post.likeCount}
                 />
 
                 {showReplyInput && (
