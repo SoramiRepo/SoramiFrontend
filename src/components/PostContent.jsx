@@ -9,16 +9,8 @@ import RepostBox from './RepostBox';
 import config from '../config';
 import { useToast } from './ToastContext';
 import { createNotification } from '../utils/notificationUtils.js'
+import { getCurrentUserId } from '../utils/getCurrentUserId.js';
 import { useTranslation } from 'react-i18next';
-
-const getCurrentUserId = () => {
-    try {
-        const user = JSON.parse(localStorage.getItem('user'));
-        return user?.id || user?._id || null;
-    } catch {
-        return null;
-    }
-};
 
 function PostContent({ post, allPosts = [], onDelete, onReplySuccess, defaultExpanded = false }) {
     const [showReplies, setShowReplies] = useState(defaultExpanded);

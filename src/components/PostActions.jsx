@@ -3,6 +3,8 @@ import { Share as ShareIcon, MessageCircle, ChevronDown, ChevronUp, Repeat2, Hea
 import config from '../config';
 import { useToast } from './ToastContext';
 import { useTranslation } from 'react-i18next';
+import { createNotification } from '../utils/notificationUtils.js'
+import { getCurrentUserId } from '../utils/getCurrentUserId.js';
 
 function PostActions({
     setShowReplyInput,
@@ -21,6 +23,8 @@ function PostActions({
     const [isLiked, setIsLiked] = useState(initialLiked);
     const [likeCount, setLikeCount] = useState(initialLikeCount);
     const [likeLoading, setLikeLoading] = useState(false);
+    const currentUsername = JSON.parse(localStorage.getItem('user'))?.username;
+
 
     // Fetch post details on component mount
     useEffect(() => {
@@ -123,6 +127,14 @@ function PostActions({
             if (response.ok) {
                 setIsLiked(!isLiked);
                 setLikeCount(prev => isLiked ? prev - 1 : prev + 1);
+                if (getCurrentUserId() !== originalPost.author._id) {
+                    await createNotification(
+                        'like',
+                        originalPost.author._id,
+                        postId,
+                        `${currentUsername} liked your post`
+                    );
+                }
             } else {
                 showToast(data.message || t('operationFailed'), 'error');
             }
@@ -130,7 +142,7 @@ function PostActions({
             console.error('Like error:', error);
             showToast(t('operationFailed'), 'error');
         } finally {
-            setLikeLoading(false); // 恢复按钮状态
+            setLikeLoading(false);
         }
     };
 
