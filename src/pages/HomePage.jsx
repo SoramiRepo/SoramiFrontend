@@ -15,6 +15,7 @@ import EditProfile from '../components/EditProfile';
 import NotificationPage from './NotificationPage';
 import InstallPWAButton from '../components/InstallPWAButton';
 import { useTranslation } from 'react-i18next'
+import MessagePage from './MessagePage';
 
 function HomePage() {
     const { t } = useTranslation()
@@ -34,14 +35,6 @@ function HomePage() {
 
     const user = JSON.parse(localStorage.getItem('user'));
 
-    // useEffect(() => {
-    //     const languageFromStorage = localStorage.getItem('i18nextLng');
-    //     console.log('Stored language:', languageFromStorage);
-    //     if (languageFromStorage && languageFromStorage !== i18n.language) {
-    //         console.log(`language changed`)
-    //         i18n.changeLanguage(languageFromStorage);
-    //     }
-    // }, []);
 
     useEffect(() => {
         let themeColorMetaTag = document.querySelector('meta[name="theme-color"]');
@@ -152,6 +145,8 @@ function HomePage() {
                     <SearchPage />
                 ) : location.pathname === '/notifications' ? (
                     <NotificationPage />
+                ) : location.pathname ===  '/messages' ? (
+                    <MessagePage />
                 ) : location.pathname.startsWith('/post/') ?  
                 (
                     <PostPage />

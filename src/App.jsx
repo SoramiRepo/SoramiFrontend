@@ -10,6 +10,7 @@ import EditProfile from './components/EditProfile'
 import NotificationPage from './pages/NotificationPage'
 import PostPage from './pages/PostPage'
 import ResetPwd from './pages/ResetPwd'
+import MessagePage from './pages/MessagePage'
 
 export default function App() {
     useEffect(() => {
@@ -26,10 +27,11 @@ export default function App() {
             <Route path="/" element={<HomePage />}>
                 <Route path="profile" element={<ProfileComponent />} />
                 <Route path="search" element={<SearchPage />} />
-                <Route path=":username" element={<OtherUserProfileComponent />} />
                 <Route path="edit-profile" element={<EditProfile />} />
                 <Route path="notifications" element={<NotificationPage />} />
+                <Route path="messages" element={<MessagePage />} />
                 <Route path="post/:id" element={<PostPage />} />
+                <Route path=":username" element={<OtherUserProfileComponent />} />
             </Route>
         </Routes>
     )
