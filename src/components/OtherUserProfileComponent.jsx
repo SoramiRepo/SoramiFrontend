@@ -40,7 +40,7 @@ function OtherUserProfileComponent() {
 
     useEffect(() => {
         const fetchData = async () => {
-            if (!currentUserId) return;
+            if (!currentUserId || !token) return;
     
             setLoading(true);
             try {
@@ -66,9 +66,22 @@ function OtherUserProfileComponent() {
     
                 setIsFollowing(isUserFollowing);
     
-                const postsRes = await fetch(`${config.apiBaseUrl}/api/post/fetch?userId=${userData.user._id}&limit=20`);
+                const postsRes = await fetch(`${config.apiBaseUrl}/api/post/fetch?userId=${userData.user._id}&limit=20`, {
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    }
+                });
                 const postsData = await postsRes.json();
-                setPosts(postsData.posts || []);
+                
+                console.log('Posts API Response:', postsData); // 调试信息
+                
+                if (postsRes.ok) {
+                    setPosts(postsData.posts || []);
+                } else {
+                    console.error('Failed to fetch posts:', postsData);
+                    setPosts([]);
+                }
     
                 setLoading(false);
             } catch (err) {
@@ -79,7 +92,7 @@ function OtherUserProfileComponent() {
         };
     
         fetchData();
-    }, [username, currentUserId]);
+    }, [username, currentUserId, token, t]);
 
     const handleFollowToggle = async () => {
         if (!token || !user) return showToast(t('Please login'), 'error');
@@ -329,7 +342,7 @@ function OtherUserProfileComponent() {
                                             transition={{ duration: 0.2 }}
                                         >
                                             {posts.length > 0 ? (
-                                                <PostList posts={posts} setPosts={setPosts} onDelete={handleDelete} />
+                                                <PostList posts={posts} setPosts={setPosts} />
                                             ) : (
                                                 <div className="text-center py-12">
                                                     <Grid3X3 size={48} className="mx-auto text-gray-400 mb-4" />
