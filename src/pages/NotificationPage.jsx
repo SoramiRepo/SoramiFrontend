@@ -7,7 +7,7 @@ import { formatDistanceToNow } from 'date-fns';
 import cn from "../utils/cn";
 import { useTranslation } from 'react-i18next';
 
-const NotificationPage = () => {
+const NotificationPage = ({ onNotificationUpdate }) => {
     const [notifications, setNotifications] = useState([]);
     const [loading, setLoading] = useState(true);
     const [filter, setFilter] = useState('all'); // 'all', 'unread', 'read'
@@ -99,6 +99,10 @@ const NotificationPage = () => {
                 setNotifications((prev) =>
                     prev.map((n) => ({ ...n, isRead: true }))
                 );
+                // 安全调用回调函数
+                if (onNotificationUpdate) {
+                    onNotificationUpdate();
+                }
             }
         } catch (err) {
             console.error('Failed to mark all as read', err);
@@ -117,6 +121,10 @@ const NotificationPage = () => {
                         item._id === n._id ? { ...item, isRead: true } : item
                     )
                 );
+                // 安全调用回调函数
+                if (onNotificationUpdate) {
+                    onNotificationUpdate();
+                }
             } catch (err) {
                 console.error('Failed to mark as read', err);
             }

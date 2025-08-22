@@ -138,7 +138,9 @@ function PostActions({
             if (response.ok) {
                 setIsLiked(!isLiked);
                 setLikeCount(prev => isLiked ? prev - 1 : prev + 1);
-                if (getCurrentUserId() !== originalPost.author._id) {
+                
+                // 只有like时才创建通知，unlike时不创建通知
+                if (!isLiked && getCurrentUserId() !== originalPost.author._id) {
                     await createNotification(
                         'like',
                         originalPost.author._id,

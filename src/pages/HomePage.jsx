@@ -110,6 +110,24 @@ function HomePage() {
         fetchUnreadCount();
     }, []);
 
+    // 更新未读通知数量的函数
+    const updateUnreadCount = async () => {
+        const token = JSON.parse(localStorage.getItem('user'))?.token;
+        if (!token) return;
+
+        try {
+            const res = await fetch(`${config.apiBaseUrl}/api/notification/unread-count`, {
+                headers: { Authorization: `Bearer ${token}` },
+            });
+            const data = await res.json();
+            if (res.ok) {
+                setUnreadCount(data.count);
+            }
+        } catch (err) {
+            console.error('Failed to get unread count:', err);
+        }
+    };
+
     // 始终渲染 Sidebar 和 NavBar，不受路由影响
     return (
         <div className="relative dark:bg-gray-900 min-h-screen bg-gray-100 overflow-x-hidden">
@@ -144,7 +162,7 @@ function HomePage() {
                 ) : location.pathname === '/search' ? (
                     <SearchPage />
                 ) : location.pathname === '/notifications' ? (
-                    <NotificationPage />
+                    <NotificationPage onNotificationUpdate={updateUnreadCount} />
                 ) : location.pathname ===  '/messages' ? (
                     <MessagePage />
                 ) : location.pathname.startsWith('/post/') ?  

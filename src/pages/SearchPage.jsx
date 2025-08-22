@@ -39,12 +39,14 @@ function SearchPage() {
 
     const handleSearch = async (e) => {
         e.preventDefault();
+        // 立即隐藏搜索建议，防止任何自动选中行为
+        setShowSuggestions(false);
+        
         const trimmed = keyword.trim();
         if (!trimmed) return;
 
         setSearchTerm(trimmed);
         setLoading(true);
-        setShowSuggestions(false);
 
         // Add to search history
         const newHistory = [trimmed, ...searchHistory.filter(item => item !== trimmed)].slice(0, 10);
@@ -73,7 +75,32 @@ function SearchPage() {
         setKeyword(term);
         setSearchTerm(term);
         setShowSuggestions(false);
-        handleSearch({ preventDefault: () => {} });
+        // 直接执行搜索逻辑，而不是调用handleSearch
+        const trimmed = term.trim();
+        if (!trimmed) return;
+
+        setLoading(true);
+
+        // Add to search history
+        const newHistory = [trimmed, ...searchHistory.filter(item => item !== trimmed)].slice(0, 10);
+        setSearchHistory(newHistory);
+        localStorage.setItem('searchHistory', JSON.stringify(newHistory));
+
+        // 执行搜索
+        Promise.all([
+            fetch(`${config.apiBaseUrl}/api/user/search?keyword=${trimmed}`),
+            fetch(`${config.apiBaseUrl}/api/post/fetch?keyword=${trimmed}`)
+        ]).then(async ([userRes, postRes]) => {
+            const userData = await userRes.json();
+            const postData = await postRes.json();
+
+            setUsers(userData.users || []);
+            setPosts(postData.posts || []);
+        }).catch(err => {
+            console.error('Search failed:', err);
+        }).finally(() => {
+            setLoading(false);
+        });
     };
 
     const clearSearch = () => {
@@ -139,6 +166,12 @@ function SearchPage() {
                                     setShowSuggestions(e.target.value.length > 0);
                                 }}
                                 onFocus={() => setShowSuggestions(keyword.length > 0)}
+                                onKeyDown={(e) => {
+                                    if (e.key === 'Enter') {
+                                        // 按回车键时立即隐藏搜索建议，防止自动选中
+                                        setShowSuggestions(false);
+                                    }
+                                }}
                                 placeholder={t('search_placeholder')}
                                 className="w-full pl-12 pr-12 py-4 bg-white/70 dark:bg-gray-800/70 backdrop-blur-xl border border-white/20 dark:border-gray-700/50 rounded-2xl shadow-xl text-lg focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500/50 transition-all duration-200"
                             />
@@ -166,6 +199,7 @@ function SearchPage() {
                                     animate={{ opacity: 1, y: 0, scale: 1 }}
                                     exit={{ opacity: 0, y: -10, scale: 0.95 }}
                                     transition={{ duration: 0.2 }}
+                                    tabIndex="-1"
                                 >
                                     {/* Search History */}
                                     {searchHistory.length > 0 && (
@@ -178,6 +212,8 @@ function SearchPage() {
                                                 {searchHistory.slice(0, 5).map((term, index) => (
                                                     <motion.button
                                                         key={term}
+                                                        type="button"
+                                                        tabIndex="-1"
                                                         onClick={() => handleQuickSearch(term)}
                                                         className="w-full text-left px-3 py-2 rounded-lg hover:bg-gray-100/50 dark:hover:bg-gray-700/50 transition-colors duration-200 flex items-center gap-2"
                                                         initial={{ opacity: 0, x: -10 }}
@@ -202,6 +238,8 @@ function SearchPage() {
                                             {['Sorami', 'Technology', 'Design', 'Development'].map((term, index) => (
                                                 <motion.button
                                                     key={term}
+                                                    type="button"
+                                                    tabIndex="-1"
                                                     onClick={() => handleQuickSearch(term)}
                                                     className="px-3 py-1 bg-blue-100/50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 rounded-full text-sm hover:bg-blue-200/50 dark:hover:bg-blue-800/40 transition-colors duration-200"
                                                     initial={{ scale: 0 }}
