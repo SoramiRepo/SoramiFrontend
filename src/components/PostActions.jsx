@@ -161,7 +161,10 @@ function PostActions({
         <div className="mt-4 flex gap-2 text-sm ml-0 sm:ml-10 items-center">
             <div className="flex gap-2">
                 <motion.button
-                    onClick={() => setShowReplyInput(prev => !prev)}
+                    onClick={(e) => {
+                        e.stopPropagation();
+                        setShowReplyInput(prev => !prev);
+                    }}
                     className={`flex items-center gap-2 px-3 py-2 rounded-xl transition-all duration-200 ${
                         setShowReplyInput ? 'bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400' : 'text-gray-500 hover:text-blue-600 dark:hover:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/20'
                     }`}
@@ -174,7 +177,10 @@ function PostActions({
                 
                 {childPosts.length > 0 && (
                     <motion.button
-                        onClick={() => setShowReplies(prev => !prev)}
+                        onClick={(e) => {
+                            e.stopPropagation();
+                            setShowReplies(prev => !prev);
+                        }}
                         className={`flex items-center gap-2 px-3 py-2 rounded-xl transition-all duration-200 ${
                             showReplies ? 'bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400' : 'text-gray-500 hover:text-blue-600 dark:hover:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/20'
                         }`}
@@ -190,7 +196,10 @@ function PostActions({
             </div>
 
             <motion.button
-                onClick={handleLike}
+                onClick={(e) => {
+                    e.stopPropagation();
+                    handleLike();
+                }}
                 disabled={likeLoading}
                 className={`flex items-center gap-2 px-3 py-2 rounded-xl transition-all duration-200 ${
                     isLiked ? 'bg-red-50 dark:bg-red-900/20 text-red-500 dark:text-red-400' : 'text-gray-500 hover:text-red-500 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20'
@@ -211,7 +220,10 @@ function PostActions({
             </motion.button>
 
             <motion.button
-                onClick={handleRepost}
+                onClick={(e) => {
+                    e.stopPropagation();
+                    handleRepost();
+                }}
                 className="flex items-center gap-2 px-3 py-2 rounded-xl text-gray-500 hover:text-purple-600 dark:hover:text-purple-400 hover:bg-purple-50 dark:hover:bg-purple-900/20 transition-all duration-200"
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
@@ -221,7 +233,10 @@ function PostActions({
             </motion.button>
 
             <motion.button
-                onClick={handleShare}
+                onClick={(e) => {
+                    e.stopPropagation();
+                    handleShare();
+                }}
                 className="ml-auto flex items-center gap-2 px-3 py-2 rounded-xl text-gray-500 hover:text-green-600 dark:hover:text-green-400 hover:bg-green-50 dark:hover:bg-green-900/20 transition-all duration-200"
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}

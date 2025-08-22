@@ -74,6 +74,7 @@ function ReplyInput({ replyContent, setReplyContent, handleReplySubmit, isSubmit
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: -20, scale: 0.95 }}
             transition={{ type: "spring", stiffness: 300, damping: 25 }}
+            onClick={(e) => e.stopPropagation()}
         >
             <div className={`relative bg-white/70 dark:bg-gray-800/70 backdrop-blur-xl rounded-2xl border transition-all duration-200 ${
                 focused ? 'border-blue-500/50 shadow-lg shadow-blue-500/10' : 'border-gray-200/50 dark:border-gray-700/50'
@@ -106,6 +107,7 @@ function ReplyInput({ replyContent, setReplyContent, handleReplySubmit, isSubmit
                         onFocus={() => setFocused(true)}
                         onBlur={() => setFocused(false)}
                         onKeyDown={handleKeyDown}
+                        onClick={(e) => e.stopPropagation()}
                         disabled={isSubmitting}
                         maxLength={maxLength + 50} // Allow slight over-typing for better UX
                     />
@@ -152,6 +154,7 @@ function ReplyInput({ replyContent, setReplyContent, handleReplySubmit, isSubmit
                             className="p-2 rounded-lg hover:bg-blue-50 dark:hover:bg-blue-900/20 text-gray-500 hover:text-blue-600 dark:hover:text-blue-400 transition-colors duration-200"
                             whileHover={{ scale: 1.1 }}
                             whileTap={{ scale: 0.9 }}
+                            onClick={(e) => e.stopPropagation()}
                             title="Add emoji"
                         >
                             <Smile size={16} />
@@ -160,6 +163,7 @@ function ReplyInput({ replyContent, setReplyContent, handleReplySubmit, isSubmit
                             className="p-2 rounded-lg hover:bg-blue-50 dark:hover:bg-blue-900/20 text-gray-500 hover:text-blue-600 dark:hover:text-blue-400 transition-colors duration-200"
                             whileHover={{ scale: 1.1 }}
                             whileTap={{ scale: 0.9 }}
+                            onClick={(e) => e.stopPropagation()}
                             title="Mention someone"
                         >
                             <AtSign size={16} />
@@ -168,6 +172,7 @@ function ReplyInput({ replyContent, setReplyContent, handleReplySubmit, isSubmit
                             className="p-2 rounded-lg hover:bg-blue-50 dark:hover:bg-blue-900/20 text-gray-500 hover:text-blue-600 dark:hover:text-blue-400 transition-colors duration-200"
                             whileHover={{ scale: 1.1 }}
                             whileTap={{ scale: 0.9 }}
+                            onClick={(e) => e.stopPropagation()}
                             title="Add hashtag"
                         >
                             <Hash size={16} />
@@ -185,7 +190,10 @@ function ReplyInput({ replyContent, setReplyContent, handleReplySubmit, isSubmit
                         </div>
                         
                         <motion.button
-                            onClick={submitReply}
+                            onClick={(e) => {
+                                e.stopPropagation();
+                                submitReply();
+                            }}
                             disabled={isSubmitting || !replyContent.trim() || isOverLimit}
                             className={`flex items-center gap-2 px-4 py-2 rounded-xl font-medium transition-all duration-200 ${
                                 isSubmitting || !replyContent.trim() || isOverLimit

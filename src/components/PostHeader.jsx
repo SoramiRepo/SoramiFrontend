@@ -28,7 +28,10 @@ function PostHeader({ post, onDelete, currentUserId, parentPost, deleting }) {
 
     return (
         <div className="flex items-start gap-x-4 relative">
-            <Link to={`/${post.author?.username}`}>
+            <Link 
+                to={`/${post.author?.username}`}
+                onClick={(e) => e.stopPropagation()}
+            >
                 <img
                     src={post.author?.avatarimg || '/resource/default-avatar.png'}
                     alt="avatar"
@@ -57,7 +60,10 @@ function PostHeader({ post, onDelete, currentUserId, parentPost, deleting }) {
                         {!showDeleteConfirm ? (
                             <motion.button
                                 key="delete-button"
-                                onClick={handleDeleteClick}
+                                onClick={(e) => {
+                                    e.stopPropagation();
+                                    handleDeleteClick(e);
+                                }}
                                 disabled={deleting}
                                 className="group relative p-2 rounded-xl bg-red-50 dark:bg-red-900/20 hover:bg-red-100 dark:hover:bg-red-900/30 border border-red-200/50 dark:border-red-800/50 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
                                 whileHover={{ scale: 1.05 }}
@@ -94,7 +100,10 @@ function PostHeader({ post, onDelete, currentUserId, parentPost, deleting }) {
                                 </span>
                                 <div className="flex items-center gap-1">
                                     <motion.button
-                                        onClick={handleConfirmDelete}
+                                        onClick={(e) => {
+                                            e.stopPropagation();
+                                            handleConfirmDelete(e);
+                                        }}
                                         className="p-1 rounded-lg bg-red-500 hover:bg-red-600 text-white transition-colors duration-200"
                                         whileHover={{ scale: 1.1 }}
                                         whileTap={{ scale: 0.9 }}
@@ -102,7 +111,10 @@ function PostHeader({ post, onDelete, currentUserId, parentPost, deleting }) {
                                         <Check size={12} />
                                     </motion.button>
                                     <motion.button
-                                        onClick={handleCancelDelete}
+                                        onClick={(e) => {
+                                            e.stopPropagation();
+                                            handleCancelDelete(e);
+                                        }}
                                         className="p-1 rounded-lg bg-gray-500 hover:bg-gray-600 text-white transition-colors duration-200"
                                         whileHover={{ scale: 1.1 }}
                                         whileTap={{ scale: 0.9 }}
