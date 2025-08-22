@@ -84,6 +84,7 @@ function FloatingPostButton({ onPostSuccess }) {
         <>
             {/* Floating Action Button */}
             <motion.button
+                data-post-button
                 className="fixed bottom-4 right-4 md:bottom-6 md:right-6 z-40 w-14 h-14 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-full shadow-lg hover:shadow-xl transition-shadow duration-200 focus:outline-none focus:ring-4 focus:ring-blue-300 dark:focus:ring-blue-600"
                 onClick={() => setIsModalOpen(true)}
                 whileHover={{ scale: 1.1, rotate: 90 }}
