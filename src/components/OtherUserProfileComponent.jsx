@@ -8,6 +8,7 @@ import UserBadges from './UserBadges';
 import FollowBackIndicator from './FollowBackIndicator';
 import { useToast } from './ToastContext';
 import { useTranslation } from 'react-i18next';
+import { createNotification } from '../utils/notificationUtils.js';
 
 function OtherUserProfileComponent() {
     const [user, setUser] = useState(null);
@@ -98,8 +99,13 @@ function OtherUserProfileComponent() {
         if (!token || !user) return showToast(t('Please login'), 'error');
     
         const endpoint = isFollowing ? 'unfollow' : 'follow';
-    
+        const previousState = isFollowing; // 保存之前的状态
+        const currentUsername = JSON.parse(localStorage.getItem('user'))?.username;
+        
         try {
+            // 乐观更新UI
+            setIsFollowing(!isFollowing);
+            
             const res = await fetch(`${config.apiBaseUrl}/api/user/${endpoint}/${user._id}`, {
                 method: 'POST',
                 headers: {
@@ -111,11 +117,41 @@ function OtherUserProfileComponent() {
             const result = await res.json();
     
             if (res.ok) {
-                setIsFollowing(prevState => !prevState);
+                // 成功：创建通知和更新计数
+                if (!previousState) { // 关注成功
+                    // 创建关注通知
+                    try {
+                        await createNotification(
+                            'follow',
+                            user._id,
+                            null, // follow通知通常不需要post ID
+                            `${currentUsername} followed you`
+                        );
+                    } catch (notificationErr) {
+                        console.error('Failed to create follow notification:', notificationErr);
+                        // 通知创建失败不影响关注操作
+                    }
+                    
+                    // 更新关注者数量
+                    setUser(prev => ({
+                        ...prev,
+                        followersCount: prev.followersCount + 1
+                    }));
+                } else { // 取消关注成功
+                    // 更新关注者数量
+                    setUser(prev => ({
+                        ...prev,
+                        followersCount: Math.max(0, prev.followersCount - 1)
+                    }));
+                }
             } else {
+                // 失败：回滚UI状态
+                setIsFollowing(previousState);
                 showToast(result.message || t('Failed'), 'error');
             }
         } catch (err) {
+            // 错误：回滚UI状态
+            setIsFollowing(previousState);
             console.error('Follow toggle error:', err);
             showToast(t('Failed, please try again'), 'error');
         }
