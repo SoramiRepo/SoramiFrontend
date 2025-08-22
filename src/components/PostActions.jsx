@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { motion } from 'framer-motion';
 import { Share as ShareIcon, MessageCircle, ChevronDown, ChevronUp, Repeat2, Heart } from 'lucide-react';
 import config from '../config';
 import { useToast } from './ToastContext';
@@ -157,56 +158,77 @@ function PostActions({
     };
 
     return (
-        <div className="mt-4 flex gap-4 text-sm ml-0 sm:ml-10 items-center">
-            <div className="flex gap-4">
-                <button
+        <div className="mt-4 flex gap-2 text-sm ml-0 sm:ml-10 items-center">
+            <div className="flex gap-2">
+                <motion.button
                     onClick={() => setShowReplyInput(prev => !prev)}
-                    className="text-blue-500 hover:text-blue-700 flex items-center gap-1"
+                    className={`flex items-center gap-2 px-3 py-2 rounded-xl transition-all duration-200 ${
+                        setShowReplyInput ? 'bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400' : 'text-gray-500 hover:text-blue-600 dark:hover:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/20'
+                    }`}
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
                 >
                     <MessageCircle size={16} />
-                    <span className="hidden sm:inline">{t('reply')}</span>
-                </button>
+                    <span className="hidden sm:inline font-medium">{t('reply')}</span>
+                </motion.button>
+                
                 {childPosts.length > 0 && (
-                    <button
+                    <motion.button
                         onClick={() => setShowReplies(prev => !prev)}
-                        className="text-blue-500 hover:text-blue-700 flex items-center gap-1"
+                        className={`flex items-center gap-2 px-3 py-2 rounded-xl transition-all duration-200 ${
+                            showReplies ? 'bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400' : 'text-gray-500 hover:text-blue-600 dark:hover:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/20'
+                        }`}
+                        whileHover={{ scale: 1.05 }}
+                        whileTap={{ scale: 0.95 }}
                     >
                         {showReplies ? <ChevronUp size={16} /> : <ChevronDown size={16} />}
-                        <span className="hidden sm:inline">
-                            {showReplies ? t('closeReplies') : t('expandReplies')}
+                        <span className="hidden sm:inline font-medium">
+                            {childPosts.length}
                         </span>
-                    </button>
+                    </motion.button>
                 )}
             </div>
 
-            <button
+            <motion.button
                 onClick={handleLike}
                 disabled={likeLoading}
-                className={`flex items-center gap-1 ${isLiked ? 'text-red-500' : 'text-gray-500 hover:text-gray-700'} ${likeLoading ? 'opacity-50 cursor-not-allowed' : ''}`}
+                className={`flex items-center gap-2 px-3 py-2 rounded-xl transition-all duration-200 ${
+                    isLiked ? 'bg-red-50 dark:bg-red-900/20 text-red-500 dark:text-red-400' : 'text-gray-500 hover:text-red-500 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20'
+                } ${likeLoading ? 'opacity-50 cursor-not-allowed' : ''}`}
+                whileHover={!likeLoading ? { scale: 1.05 } : {}}
+                whileTap={!likeLoading ? { scale: 0.95 } : {}}
             >
                 {likeLoading ? (
-                    <div className="w-4 h-4 border-2 border-t-2 border-gray-400 rounded-full animate-spin"></div>
+                    <motion.div
+                        className="w-4 h-4 border-2 border-red-400 border-t-transparent rounded-full"
+                        animate={{ rotate: 360 }}
+                        transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+                    />
                 ) : (
                     <Heart size={16} fill={isLiked ? 'currentColor' : 'none'} />
                 )}
-                <span className="hidden sm:inline">{likeCount}</span>
-            </button>
+                <span className="hidden sm:inline font-medium">{likeCount}</span>
+            </motion.button>
 
-            <button
-                onClick={handleShare}
-                className="ml-auto text-gray-500 hover:text-gray-700 flex items-center gap-1"
-            >
-                <ShareIcon size={16} />
-                <span className="hidden sm:inline">{t('share')}</span>
-            </button>
-
-            <button
+            <motion.button
                 onClick={handleRepost}
-                className="text-gray-500 hover:text-gray-700 flex items-center gap-1"
+                className="flex items-center gap-2 px-3 py-2 rounded-xl text-gray-500 hover:text-purple-600 dark:hover:text-purple-400 hover:bg-purple-50 dark:hover:bg-purple-900/20 transition-all duration-200"
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
             >
                 <Repeat2 size={16} />
-                <span className="hidden sm:inline">{t('repost')}</span>
-            </button>
+                <span className="hidden sm:inline font-medium">{t('repost')}</span>
+            </motion.button>
+
+            <motion.button
+                onClick={handleShare}
+                className="ml-auto flex items-center gap-2 px-3 py-2 rounded-xl text-gray-500 hover:text-green-600 dark:hover:text-green-400 hover:bg-green-50 dark:hover:bg-green-900/20 transition-all duration-200"
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+            >
+                <ShareIcon size={16} />
+                <span className="hidden sm:inline font-medium">{t('share')}</span>
+            </motion.button>
         </div>
     );
 }

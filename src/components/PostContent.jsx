@@ -17,7 +17,7 @@ function PostContent({ post, allPosts = [], onDelete, onReplySuccess, defaultExp
     const [replyContent, setReplyContent] = useState('');
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [showReplyInput, setShowReplyInput] = useState(false);
-    const [showSuccess, setShowSuccess] = useState(false);
+
     const { t } = useTranslation();
     const currentUserId = getCurrentUserId();
     const { showToast } = useToast();
@@ -52,10 +52,13 @@ function PostContent({ post, allPosts = [], onDelete, onReplySuccess, defaultExp
     };
 
     const handleReplySubmit = async () => {
-        if (!replyContent.trim()) return;
+        if (!replyContent.trim()) return null;
 
         const token = JSON.parse(localStorage.getItem('user'))?.token;
-        if (!token) return showToast(`Not logged in, can't reply`, 'error');
+        if (!token) {
+            showToast(`Not logged in, can't reply`, 'error');
+            return null;
+        }
 
         setIsSubmitting(true);
 
@@ -75,15 +78,16 @@ function PostContent({ post, allPosts = [], onDelete, onReplySuccess, defaultExp
                 setReplyContent('');
                 setShowReplies(true);
                 onReplySuccess?.(result.reply);
-                setShowSuccess(true);
-                setTimeout(() => setShowSuccess(false), 2000);
                 await createNotification('reply', post.author, post._id, replyContent);
+                return result.reply;
             } else {
                 showToast(result.message || 'Reply failed', 'error');
+                return null;
             }
         } catch (err) {
             console.error('Reply error:', err);
             showToast('Server Error', 'error');
+            return null;
         } finally {
             setIsSubmitting(false);
         }
@@ -125,29 +129,17 @@ function PostContent({ post, allPosts = [], onDelete, onReplySuccess, defaultExp
                     initialLikeCount={post.likeCount}
                 />
 
-                {showReplyInput && (
-                    <>
+                <AnimatePresence>
+                    {showReplyInput && (
                         <ReplyInput
                             replyContent={replyContent}
                             setReplyContent={setReplyContent}
                             handleReplySubmit={handleReplySubmit}
                             isSubmitting={isSubmitting}
+                            onClose={() => setShowReplyInput(false)}
                         />
-                        <AnimatePresence>
-                            {showSuccess && (
-                                <motion.div
-                                    initial={{ opacity: 0, y: 10 }}
-                                    animate={{ opacity: 1, y: 0 }}
-                                    exit={{ opacity: 0, y: -5 }}
-                                    transition={{ duration: 0.3 }}
-                                    className="text-green-500 text-sm font-semibold mt-2 ml-0 sm:ml-10"
-                                >
-                                    {t('reply_post_success')}
-                                </motion.div>
-                            )}
-                        </AnimatePresence>
-                    </>
-                )}
+                    )}
+                </AnimatePresence>
 
                 {showReplies && (
                     <ReplyList
