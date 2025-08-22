@@ -77,6 +77,7 @@
     "repost": "Repost",
     "reply_post_success": "✅ Reply posted successfully!",
     "delete": "Delete",
+    "delete_confirm": "Delete?",
     "notLogin": "Not login",
     "unknownError": "Unknown Error",
     "postFailed": "Post failed, please try again",

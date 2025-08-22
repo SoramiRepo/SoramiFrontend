@@ -77,6 +77,7 @@
     "repost": "转发",
     "reply_post_success": "✅ 回复发布成功！",
     "delete": "删除",
+    "delete_confirm": "删除？",
     "notLogin": "未登录",
     "unknownError": "未知错误",
     "postFailed": "发布失败，请重试",

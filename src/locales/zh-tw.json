@@ -77,6 +77,7 @@
     "repost": "轉發",
     "reply_post_success": "✅ 回覆已發布！",
     "delete": "刪除",
+    "delete_confirm": "刪除？",
     "notLogin": "未登入",
     "unknownError": "未知錯誤",
     "postFailed": "發布失敗，請再試一次",

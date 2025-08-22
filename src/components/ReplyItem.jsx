@@ -30,8 +30,7 @@ function ReplyItem({ post, allPosts = [], onDelete, onReplySuccess, isLast = fal
         const token = JSON.parse(localStorage.getItem('user'))?.token;
         if (!token) return showToast('Not logged in, cannot delete posts', 'error');
 
-        const confirmed = window.confirm('Are you sure you want to delete this post?');
-        if (!confirmed) return;
+
 
         try {
             const res = await fetch(`${config.apiBaseUrl}/api/post/delete/${post._id}`, {

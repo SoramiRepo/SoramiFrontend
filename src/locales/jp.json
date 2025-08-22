@@ -77,6 +77,7 @@
     "repost": "リポスト",
     "reply_post_success": "✅ 返信しました",
     "delete": "削除",
+    "delete_confirm": "削除しますか？",
     "notLogin": "まだログインしない",
     "unknownError": "不明エラー",
     "postFailed": "ポストが失敗しました。もう一度お試しください。",
