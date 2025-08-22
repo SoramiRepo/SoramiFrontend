@@ -310,7 +310,7 @@ function SearchPage() {
                                             <motion.button
                                                 key={tab.id}
                                                 onClick={() => setActiveTab(tab.id)}
-                                                className={`flex-1 px-6 py-4 text-center font-medium transition-all duration-200 relative ${
+                                                className={`flex-1 px-3 sm:px-6 py-4 text-center font-medium transition-all duration-200 relative ${
                                                     activeTab === tab.id
                                                         ? 'text-blue-600 dark:text-blue-400'
                                                         : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300'
@@ -318,16 +318,17 @@ function SearchPage() {
                                                 whileHover={{ scale: 1.02 }}
                                                 whileTap={{ scale: 0.98 }}
                                             >
-                                                <div className="flex items-center justify-center gap-2">
+                                                <div className="flex items-center justify-center gap-1 sm:gap-2">
                                                     <tab.icon size={18} />
-                                                    <span>{tab.label}</span>
+                                                    {/* 在移动端隐藏文字标签，只显示图标和数字 */}
+                                                    <span className="hidden sm:inline">{tab.label}</span>
                                                     <span className="text-sm bg-gray-100 dark:bg-gray-700 px-2 py-1 rounded-full">
                                                         {tab.count}
                                                     </span>
                                                 </div>
                                                 {activeTab === tab.id && (
                                                     <motion.div
-                                                        className="absolute bottom-0 left-0 right-0 h-0.5 bg-blue-600 dark:bg-blue-400"
+                                                        className="absolute bottom-0 left-0 right-0 h-0.5 bg-blue-600 dark:text-blue-400"
                                                         layoutId="activeTab"
                                                     />
                                                 )}
