@@ -98,7 +98,7 @@ function FloatingPostButton({ onPostSuccess }) {
                 {isModalOpen && (
                     <>
                         <motion.div
-                            className="fixed inset-0 z-50 bg-black bg-opacity-50 backdrop-blur-sm"
+                            className="fixed inset-0 z-50 bg-white/20 dark:bg-black/20 backdrop-blur-md"
                             initial={{ opacity: 0 }}
                             animate={{ opacity: 1 }}
                             exit={{ opacity: 0 }}
@@ -110,7 +110,7 @@ function FloatingPostButton({ onPostSuccess }) {
                             onClick={(e) => e.stopPropagation()}
                         >
                             <motion.div
-                                className="bg-white dark:bg-gray-800 rounded-2xl shadow-2xl w-full max-w-md max-h-[90vh] md:max-h-[80vh] overflow-hidden"
+                                className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-xl rounded-2xl shadow-2xl w-full max-w-md max-h-[90vh] md:max-h-[80vh] overflow-hidden border border-white/20 dark:border-gray-700/50"
                                 initial={{ opacity: 0, scale: 0.8, y: 50 }}
                                 animate={{ opacity: 1, scale: 1, y: 0 }}
                                 exit={{ opacity: 0, scale: 0.8, y: 50 }}
@@ -136,7 +136,7 @@ function FloatingPostButton({ onPostSuccess }) {
                                 <div className="p-4 md:p-6">
                                     <div className="space-y-4">
                                         <textarea
-                                            className="w-full p-4 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg resize-none focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
+                                            className="w-full p-4 border border-gray-300/50 dark:border-gray-600/50 bg-white/50 dark:bg-gray-700/50 backdrop-blur-sm text-gray-900 dark:text-white rounded-lg resize-none focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
                                             rows="6"
                                             value={postContent}
                                             onChange={(e) => setPostContent(e.target.value)}
@@ -146,7 +146,7 @@ function FloatingPostButton({ onPostSuccess }) {
                                         
                                         {error && (
                                             <motion.div
-                                                className="p-3 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg"
+                                                className="p-3 bg-red-50/80 dark:bg-red-900/20 backdrop-blur-sm border border-red-200/50 dark:border-red-800/50 rounded-lg"
                                                 initial={{ opacity: 0, y: -10 }}
                                                 animate={{ opacity: 1, y: 0 }}
                                             >
