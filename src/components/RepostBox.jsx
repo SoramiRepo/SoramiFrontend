@@ -1,25 +1,26 @@
 import React from 'react';
 import { useTranslation } from 'react-i18next';
+import { Repeat2 } from 'lucide-react';
 
-const RepostBox = ({ repost }) => {
+const RepostBox = ({ repost, repostAuthor }) => {
     const { t } = useTranslation();
 
     if (!repost) return null;
 
-    const repostAuthor = repost.author;
-    const authorName = typeof repostAuthor === 'object' ? repostAuthor.username : 'Unknown User';
-    const content = repost.content || '';
+    const originalAuthor = repost.author;
+    const authorName = typeof originalAuthor === 'object' ? 
+        (originalAuthor.avatarname || originalAuthor.username) : 'Unknown User';
+    const repostAuthorName = typeof repostAuthor === 'object' ? 
+        (repostAuthor.avatarname || repostAuthor.username) : 'Unknown User';
 
     return (
-        <div className="relative mx-auto flex w-full flex-col gap-y-4 rounded-xl bg-white p-6 shadow-lg outline outline-black/5 dark:bg-slate-800 dark:shadow-none dark:-outline-offset-1 dark:outline-white/10 dark:text-white">
-            <p className="text-xs text-gray-500 dark:text-gray-400 mb-1">
-                🔁 {t('repostedFrom')} @{authorName}
-            </p>
-            {content ? (
-                <div className="whitespace-pre-wrap">{content}</div>
-            ) : (
-                <div className="text-gray-400 italic">{t('originalPostDeleted')}</div>
-            )}
+        <div className="flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400 mb-2">
+            <Repeat2 size={14} className="text-gray-400" />
+            <span>
+                <span className="font-medium text-gray-700 dark:text-gray-300">{repostAuthorName}</span>
+                {' '}{t('repostedBy')}{' '}
+                <span className="font-medium text-gray-700 dark:text-gray-300">{authorName}</span>
+            </span>
         </div>
     );
 };

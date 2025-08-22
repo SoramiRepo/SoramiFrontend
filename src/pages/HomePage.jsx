@@ -5,7 +5,7 @@ import config from '../config';
 import i18n from '../i18n'
 import NavBar from '../components/NavBar'; // 引入 NavBar 组件
 import Sidebar from '../components/Sidebar';
-import PostInput from '../components/PostInput';
+import FloatingPostButton from '../components/FloatingPostButton';
 import Timeline from '../components/PostList';
 import ProfileComponent from '../components/ProfileComponent';
 import OtherUserProfileComponent from '../components/OtherUserProfileComponent';
@@ -153,9 +153,9 @@ function HomePage() {
                 ) : (
                     <>
                         <div className="bg-white dark:bg-gray-800 p-6 shadow-lg rounded-lg">
-                            <PostInput onPostSuccess={handlePostSuccess} />
                             <Timeline posts={posts} setPosts={setPosts} />
                         </div>
+                        <FloatingPostButton onPostSuccess={handlePostSuccess} />
                     </>
                 )}
 

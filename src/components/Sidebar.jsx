@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { NavLink } from 'react-router-dom';
-import { Home, Search, Bell, Mail, User } from 'lucide-react';
+import { Home, Search, Bell, Mail, User, ChevronDown, Globe } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { useTranslation } from 'react-i18next';
 
@@ -10,6 +10,14 @@ const menuItems = [
     { name: 'notifications', icon: <Bell size={20} />, path: '/notifications' },
     { name: 'messages', icon: <Mail size={20} />, path: '/messages' },
     { name: 'profile', icon: <User size={20} />, path: '/profile' },
+];
+
+// Language options configuration
+const languageOptions = [
+    { code: 'en', name: 'English', flag: '/resource/flags/US.png' },
+    { code: 'cn', name: '中文', flag: '/resource/flags/CN.png' },
+    { code: 'tw', name: '繁體中文', flag: '/resource/flags/TW.png' },
+    { code: 'jp', name: '日本語', flag: '/resource/flags/JP.png' },
 ];
 
 function Sidebar({ isOpen = false, onClose, unreadCount = 0 }) {
@@ -31,7 +39,7 @@ function Sidebar({ isOpen = false, onClose, unreadCount = 0 }) {
     return (
         <>
             <div style={{ minHeight: 'calc(100vh - 10px)' }} className="hidden lg:block fixed top-1 left-1 z-50 w-72 bg-[#F6F8FA80] dark:bg-[#1e293b80] backdrop-blur-sm dark:text-white text-black p-6 shadow-lg rounded-xl">
-                <SidebarContent unreadCount={unreadCount} t={t} onClose={onClose} handleLanguageChange={handleLanguageChange} />
+                <SidebarContent unreadCount={unreadCount} t={t} onClose={onClose} handleLanguageChange={handleLanguageChange} language={language} />
             </div>
 
             <motion.div
@@ -49,13 +57,18 @@ function Sidebar({ isOpen = false, onClose, unreadCount = 0 }) {
                         &times;
                     </button>
                 </div>
-                <SidebarContent onClose={onClose} unreadCount={unreadCount} t={t} handleLanguageChange={handleLanguageChange} />
+                <SidebarContent onClose={onClose} unreadCount={unreadCount} t={t} handleLanguageChange={handleLanguageChange} language={language} />
             </motion.div>
         </>
     );
 }
 
-const SidebarContent = ({ onClose, unreadCount, t, handleLanguageChange }) => {
+const SidebarContent = ({ onClose, unreadCount, t, handleLanguageChange, language }) => {
+    const [isLanguageDropdownOpen, setIsLanguageDropdownOpen] = useState(false);
+    
+    // Get current language info
+    const currentLanguage = languageOptions.find(lang => lang.code === language) || languageOptions[0];
+
     return (
         <>
             <h1 className="text-3xl font-bold mb-8 text-center">{t('appName')}</h1>
@@ -87,20 +100,58 @@ const SidebarContent = ({ onClose, unreadCount, t, handleLanguageChange }) => {
                 })}
             </ul>
 
-            {/* Language Switcher */}
-            <div className="mt-8 flex justify-center gap-4">
-                <button onClick={() => handleLanguageChange('en')} className="text-xl">
-                    <img src="/resource/flags/US.png" width={50} />
+            {/* Language Dropdown */}
+            <div className="mt-8 relative">
+                <button
+                    onClick={() => setIsLanguageDropdownOpen(!isLanguageDropdownOpen)}
+                    className="w-full flex items-center justify-between px-4 py-3 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg shadow-sm hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                >
+                    <div className="flex items-center gap-3">
+                        <Globe size={20} className="text-gray-500 dark:text-gray-400" />
+                        <img src={currentLanguage.flag} alt={currentLanguage.name} className="w-6 h-4 rounded-sm" />
+                        <span className="font-medium text-gray-900 dark:text-white">{currentLanguage.name}</span>
+                    </div>
+                    <ChevronDown 
+                        size={16} 
+                        className={`text-gray-500 dark:text-gray-400 transition-transform duration-200 ${
+                            isLanguageDropdownOpen ? 'rotate-180' : ''
+                        }`} 
+                    />
                 </button>
-                <button onClick={() => handleLanguageChange('cn')} className="text-xl">
-                    <img src="/resource/flags/CN.png" width={50} />
-                </button>
-                <button onClick={() => handleLanguageChange('tw')} className="text-xl">
-                    <img src="/resource/flags/TW.png" width={50} />
-                </button>
-                <button onClick={() => handleLanguageChange('jp')} className="text-xl">
-                    <img src="/resource/flags/JP.png" width={50} />
-                </button>
+
+                {/* Dropdown Menu */}
+                {isLanguageDropdownOpen && (
+                    <motion.div
+                        initial={{ opacity: 0, y: -10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: -10 }}
+                        transition={{ duration: 0.2 }}
+                        className="absolute top-full left-0 right-0 mt-1 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg shadow-lg z-10"
+                    >
+                        {languageOptions.map((lang) => (
+                            <button
+                                key={lang.code}
+                                onClick={() => {
+                                    handleLanguageChange(lang.code);
+                                    setIsLanguageDropdownOpen(false);
+                                }}
+                                className={`w-full flex items-center gap-3 px-4 py-3 text-left hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors duration-150 ${
+                                    language === lang.code 
+                                        ? 'bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400' 
+                                        : 'text-gray-900 dark:text-white'
+                                } ${lang.code === languageOptions[0].code ? 'rounded-t-lg' : ''} ${
+                                    lang.code === languageOptions[languageOptions.length - 1].code ? 'rounded-b-lg' : ''
+                                }`}
+                            >
+                                <img src={lang.flag} alt={lang.name} className="w-6 h-4 rounded-sm" />
+                                <span className="font-medium">{lang.name}</span>
+                                {language === lang.code && (
+                                    <div className="ml-auto w-2 h-2 bg-blue-600 dark:bg-blue-400 rounded-full"></div>
+                                )}
+                            </button>
+                        ))}
+                    </motion.div>
+                )}
             </div>
         </>
     );

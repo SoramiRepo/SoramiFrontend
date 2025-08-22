@@ -8,15 +8,15 @@ import ReplyList from './ReplyList';
 import RepostContent from './RepostContent';
 import config from '../config';
 import { useToast } from './ToastContext';
-import { createNotification } from '../utils/notificationUtils.js'
+import { createNotification } from '../utils/notificationUtils.js';
 import { getCurrentUserId } from '../utils/getCurrentUserId.js';
 import { useTranslation } from 'react-i18next';
 
-function PostContent({ post, allPosts = [], onDelete, onReplySuccess, defaultExpanded = false }) {
-    const [showReplies, setShowReplies] = useState(defaultExpanded);
+function ReplyItem({ post, allPosts = [], onDelete, onReplySuccess, isLast = false }) {
+    const [showReplyInput, setShowReplyInput] = useState(false);
+    const [showReplies, setShowReplies] = useState(false);
     const [replyContent, setReplyContent] = useState('');
     const [isSubmitting, setIsSubmitting] = useState(false);
-    const [showReplyInput, setShowReplyInput] = useState(false);
     const [showSuccess, setShowSuccess] = useState(false);
     const { t } = useTranslation();
     const currentUserId = getCurrentUserId();
@@ -93,15 +93,21 @@ function PostContent({ post, allPosts = [], onDelete, onReplySuccess, defaultExp
     };
 
     return (
-        <AnimatePresence>
-            <motion.div
-                key={post._id}
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: 10 }}
-                transition={{ duration: 0.3 }}
-                className="relative mx-auto flex max-w-full flex-col gap-y-4 rounded-xl bg-white p-6 shadow-lg outline outline-black/5 dark:bg-slate-800 dark:shadow-none dark:-outline-offset-1 dark:outline-white/10 dark:text-white"
-            >
+        <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: 10 }}
+            transition={{ duration: 0.3 }}
+            className="relative"
+        >
+            {/* 左侧连接线 */}
+            {!isLast && (
+                <div className="absolute left-6 top-12 w-0.5 bg-gray-200 dark:bg-gray-600 z-0" 
+                     style={{ height: 'calc(100% + 0.5rem)' }}></div>
+            )}
+            
+            {/* 回复内容 */}
+            <div className="relative z-10 bg-white dark:bg-gray-800 rounded-xl p-4 shadow-sm border border-gray-100 dark:border-gray-700 hover:shadow-md transition-shadow duration-200">
                 {post.repost ? (
                     <RepostContent 
                         post={post} 
@@ -143,7 +149,7 @@ function PostContent({ post, allPosts = [], onDelete, onReplySuccess, defaultExp
                                     animate={{ opacity: 1, y: 0 }}
                                     exit={{ opacity: 0, y: -5 }}
                                     transition={{ duration: 0.3 }}
-                                    className="text-green-500 text-sm font-semibold mt-2 ml-0 sm:ml-10"
+                                    className="text-green-500 text-sm font-semibold mt-2"
                                 >
                                     {t('reply_post_success')}
                                 </motion.div>
@@ -160,9 +166,9 @@ function PostContent({ post, allPosts = [], onDelete, onReplySuccess, defaultExp
                         onReplySuccess={onReplySuccess}
                     />
                 )}
-            </motion.div>
-        </AnimatePresence>
+            </div>
+        </motion.div>
     );
 }
 
-export default PostContent;
+export default ReplyItem;

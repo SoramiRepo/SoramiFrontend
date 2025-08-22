@@ -74,7 +74,17 @@ function PostActions({
         }
 
         try {
-            if (!originalPost.content) {
+            // 检查是否是repost的repost，如果是则获取原始帖子
+            let targetPostId = postId;
+            let targetPost = originalPost;
+            
+            // 如果当前帖子是repost，则repost原始帖子而不是repost本身
+            if (originalPost.repost) {
+                targetPostId = originalPost.repost._id;
+                targetPost = originalPost.repost;
+            }
+
+            if (!targetPost.content) {
                 showToast(t('bugFound'), 'error');
                 return;
             }
@@ -85,7 +95,7 @@ function PostActions({
                     'Content-Type': 'application/json',
                     'Authorization': `Bearer ${token}`,
                 },
-                body: JSON.stringify({ repostId: postId }),
+                body: JSON.stringify({ repostId: targetPostId }),
             });
 
             const data = await response.json();

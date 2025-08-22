@@ -92,5 +92,11 @@
     "messages": "Messages",
     "profile": "Profile",
     "install_sorami": "Install Sorami",
-    "forgot_password": "Reset Password"
+    "forgot_password": "Reset Password",
+    "createPost": "Create Post",
+    "cancel": "Cancel",
+    "postSuccess": "Post created successfully!",
+    "replyTooDeep": "Reply level too deep, please view full conversation in new page",
+    "viewFullReply": "Click to view full reply →",
+    "repostedBy": "reposted"
 }

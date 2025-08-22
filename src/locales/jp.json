@@ -91,5 +91,11 @@
     "appName": "Sorami",
     "messages": "メッセージ",
     "profile": "プロフィール",
-    "install_sorami": "Soramiをインストール"
+    "install_sorami": "Soramiをインストール",
+    "createPost": "ポストを作成",
+    "cancel": "キャンセル",
+    "postSuccess": "ポストが正常に作成されました！",
+    "replyTooDeep": "返信レベルが深すぎます。新しいページで完全な会話を表示してください",
+    "viewFullReply": "完全な返信を表示するにはクリック →",
+    "repostedBy": "リポストしました"
 }

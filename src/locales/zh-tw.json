@@ -92,5 +92,11 @@
     "messages": "訊息",
     "profile": "個人資料",
     "install_sorami": "安裝 Sorami",
-    "forgot_password": "Reset Password"
+    "forgot_password": "Reset Password",
+    "createPost": "建立貼文",
+    "cancel": "取消",
+    "postSuccess": "貼文建立成功！",
+    "replyTooDeep": "回覆層級過深，請在新頁面查看完整對話",
+    "viewFullReply": "點擊查看完整回覆 →",
+    "repostedBy": "轉發了"
 }
