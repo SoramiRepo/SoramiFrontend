@@ -1,5 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Link, useParams, useNavigate } from 'react-router-dom';
+import { motion, AnimatePresence } from 'framer-motion';
+import { Calendar, Users, UserPlus, Edit3, ArrowLeft, Grid3X3, Heart, MessageCircle } from 'lucide-react';
 import config from '../config';
 import PostList from './PostList';
 import UserBadges from './UserBadges';
@@ -17,8 +19,7 @@ function OtherUserProfileComponent() {
     const [currentUserId, setCurrentUserId] = useState(null);
     const [token, setToken] = useState('');
     const [isFollowing, setIsFollowing] = useState(false);
-    const [viewFollowers, setViewFollowers] = useState(false);
-    const [viewFollowing, setViewFollowing] = useState(false);
+    const [activeTab, setActiveTab] = useState('posts'); // 'posts', 'followers', 'following'
     const navigate = useNavigate();
     const { t } = useTranslation();
 
@@ -107,127 +108,337 @@ function OtherUserProfileComponent() {
         }
     };
 
-    if (loading) return <div className="p-10 text-center text-gray-500">{t('Loading...')}</div>;
-    if (error) return <div className="p-10 text-center text-red-500">{error}</div>;
+    if (loading) {
+        return (
+            <motion.div 
+                className="min-h-screen flex items-center justify-center"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+            >
+                <motion.div
+                    className="w-12 h-12 border-4 border-blue-500 border-t-transparent rounded-full"
+                    animate={{ rotate: 360 }}
+                    transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+                />
+            </motion.div>
+        );
+    }
+
+    if (error) {
+        return (
+            <motion.div 
+                className="min-h-screen flex items-center justify-center p-4"
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+            >
+                <div className="bg-red-50/80 dark:bg-red-900/20 backdrop-blur-sm border border-red-200/50 dark:border-red-800/50 rounded-2xl p-8 text-center max-w-md">
+                    <div className="text-red-600 dark:text-red-400 text-lg font-medium">{error}</div>
+                </div>
+            </motion.div>
+        );
+    }
+
+    const tabs = [
+        { id: 'posts', label: t('Posts'), icon: Grid3X3, count: posts.length },
+        { id: 'followers', label: t('Followers'), icon: Users, count: user?.followersCount || 0 },
+        { id: 'following', label: t('Following'), icon: UserPlus, count: user?.followingCount || 0 }
+    ];
 
     return (
-        <div className="min-h-[calc(100vh-1px)] pt-[60px] px-4 pb-10 flex justify-center items-start">
-            <div className="w-full max-w-xl bg-white shadow-xl dark:bg-gray-800 rounded-2xl p-6">
+        <motion.div 
+            className="min-h-screen bg-gradient-to-br from-blue-50/50 to-purple-50/50 dark:from-gray-900 dark:to-gray-800"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.5 }}
+        >
+            <div className="max-w-4xl mx-auto px-4 py-8">
                 {user && (
-                    <div className="flex flex-col items-center">
-                        <img
-                            src={user.avatarimg || '/resource/default-avatar.png'}
-                            alt="avatar"
-                            className="w-24 h-24 rounded-full object-cover shadow-md"
-                        />
-                        {currentUserId ? (
-                            user._id !== currentUserId ? (
-                                <button
-                                    onClick={handleFollowToggle}
-                                    className={`mt-4 px-4 py-2 rounded-full text-sm font-medium transition ${
-                                        isFollowing
-                                            ? 'bg-gray-300 text-gray-800 hover:bg-gray-400'
-                                            : 'bg-blue-500 text-white hover:bg-blue-600'
-                                    }`}
+                    <>
+                        {/* Profile Header */}
+                        <motion.div 
+                            className="bg-white/70 dark:bg-gray-800/70 backdrop-blur-xl rounded-3xl shadow-2xl border border-white/20 dark:border-gray-700/50 overflow-hidden mb-8"
+                            initial={{ y: 20, opacity: 0 }}
+                            animate={{ y: 0, opacity: 1 }}
+                            transition={{ delay: 0.1 }}
+                        >
+                            {/* Cover Background */}
+                            <div className="h-32 bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 relative">
+                                <div className="absolute inset-0 bg-black/20"></div>
+                            </div>
+
+                            <div className="px-8 pb-8">
+                                {/* Avatar */}
+                                <motion.div 
+                                    className="relative -mt-16 mb-6"
+                                    initial={{ scale: 0.8, opacity: 0 }}
+                                    animate={{ scale: 1, opacity: 1 }}
+                                    transition={{ delay: 0.2, type: "spring", stiffness: 200 }}
                                 >
-                                    {isFollowing ? t('Unfollow') : t('Follow')}
-                                </button>
-                            ) : (
-                                <button
-                                    onClick={() => navigate('/edit-profile')}
-                                    className="mt-4 px-4 py-2 rounded-full text-sm font-medium transition bg-green-500 text-white hover:bg-green-600"
-                                >
-                                    {t('Edit Profile')}
-                                </button>
-                            )
-                        ) : null}
-
-                        <h2 className="text-2xl font-semibold mt-4 text-gray-800 dark:text-gray-100 flex items-center">
-                            <span>{user.avatarname || user.username}</span>
-                            <UserBadges badges={user.badges} />
-                            <FollowBackIndicator currentUserId={currentUserId} followerList={user.following} />
-                        </h2>
-
-                        <p className="text-gray-500">@{user.username}</p>
-                        <p className="mt-4 text-center text-gray-600 dark:text-gray-300">{user.bio || ''}</p>
-                        <p className="mt-2 text-sm text-gray-400">
-                            {t('Register Time')}: {new Date(user.registertime).toLocaleString()}
-                        </p>
-
-                        <div className="mt-4 flex space-x-6 text-gray-600 dark:text-gray-300">
-                            <button onClick={() => setViewFollowers(true)} className="flex items-center space-x-2">
-                                <span>{user.followersCount}</span>
-                                <span>{t('Followers')}</span>
-                            </button>
-                            <button onClick={() => setViewFollowing(true)} className="flex items-center space-x-2">
-                                <span>{user.followingCount}</span>
-                                <span>{t('Following')}</span>
-                            </button>
-                        </div>
-                    </div>
-                )}
-
-                {viewFollowers && (
-                    <div className="mt-6">
-                        <h3 className="text-lg font-semibold text-gray-800 dark:text-gray-100">{t('Followers')}</h3>
-                            {user.followers && user.followers.length > 0 ? (
-                                user.followers.map(follower => (
-                                    <div className="space-y-4 mt-4">
-                                        <Link to={`/${follower.username}`}>
-                                            <div key={follower._id} className="flex items-center space-x-2">
-                                                <img
-                                                    src={follower.avatarimg || '/resource/default-avatar.png'}
-                                                    alt={follower.username}
-                                                    className="w-10 h-10 rounded-full"
-                                                />
-                                                <span>{follower.avatarname || follower.username}</span>
-                                                <UserBadges badges={follower.badges} />
-                                            </div>
-                                        </Link>
+                                    <div className="w-32 h-32 rounded-full bg-white/90 dark:bg-gray-800/90 backdrop-blur-sm p-2 shadow-2xl">
+                                        <img
+                                            src={user.avatarimg || '/resource/default-avatar.png'}
+                                            alt="avatar"
+                                            className="w-full h-full rounded-full object-cover"
+                                        />
                                     </div>
-                                ))
-                            ) : (
-                                <div className="p-4 bg-gray-100 rounded-lg text-center text-gray-500 dark:bg-gray-800">
-                                    {t('No followers yet.')}
-                                </div>
-                            )}
-                        </div>
-                )}
+                                </motion.div>
 
-                {viewFollowing && (
-                    <div className="mt-6">
-                        <h3 className="text-lg font-semibold text-gray-800 dark:text-gray-100">{t('Following')}</h3>
-                            {user.following && user.following.length > 0 ? (
-                                user.following.map(following => (
-                                    <Link to={`/${following.username}`}>
-                                        <div className="space-y-4 mt-4"></div>
-                                            <div key={following._id} className="flex items-center space-x-2">
-                                                <img
-                                                    src={following.avatarimg || '/resource/default-avatar.png'}
-                                                    alt={following.username}
-                                                    className="w-10 h-10 rounded-full"
-                                                />
-                                                <span>{following.avatarname || following.username}</span>
-                                                <UserBadges badges={following.badges} />
-                                            </div>
-                                    </Link>
-                                ))
-                            ) : (
-                                <div className="p-4 bg-gray-100 rounded-lg text-center text-gray-500 dark:bg-gray-800">
-                                    {t('Not following anyone yet.')}
-                                </div>
-                            )}
-                        </div>
-                )}
+                                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
+                                    <div>
+                                        <motion.h1 
+                                            className="text-3xl font-bold text-gray-900 dark:text-white flex items-center gap-3 mb-2"
+                                            initial={{ x: -20, opacity: 0 }}
+                                            animate={{ x: 0, opacity: 1 }}
+                                            transition={{ delay: 0.3 }}
+                                        >
+                                            {user.avatarname || user.username}
+                                            <UserBadges badges={user.badges} />
+                                            <FollowBackIndicator currentUserId={currentUserId} followerList={user.following} />
+                                        </motion.h1>
+                                        <p className="text-gray-500 dark:text-gray-400 text-lg">@{user.username}</p>
+                                    </div>
 
-                {!viewFollowers && !viewFollowing && (
-                    <div className="mt-6">
-                        <h3 className="text-lg font-semibold text-gray-800 dark:text-gray-100">{t('Posts')}</h3>
-                        <PostList posts={posts}  setPosts={setPosts} onDelete={handleDelete} />
-                    </div>
+                                    {/* Action Button */}
+                                    {currentUserId && (
+                                        <motion.div
+                                            initial={{ x: 20, opacity: 0 }}
+                                            animate={{ x: 0, opacity: 1 }}
+                                            transition={{ delay: 0.4 }}
+                                        >
+                                            {user._id !== currentUserId ? (
+                                                <motion.button
+                                                    onClick={handleFollowToggle}
+                                                    className={`px-6 py-3 rounded-2xl font-semibold transition-all duration-200 flex items-center gap-2 ${
+                                                        isFollowing
+                                                            ? 'bg-gray-200/80 dark:bg-gray-700/80 text-gray-800 dark:text-gray-200 hover:bg-gray-300/80 dark:hover:bg-gray-600/80'
+                                                            : 'bg-blue-500/90 text-white hover:bg-blue-600/90 shadow-lg shadow-blue-500/25'
+                                                    }`}
+                                                    whileHover={{ scale: 1.05 }}
+                                                    whileTap={{ scale: 0.95 }}
+                                                >
+                                                    <UserPlus size={18} />
+                                                    {isFollowing ? t('Unfollow') : t('Follow')}
+                                                </motion.button>
+                                            ) : (
+                                                <motion.button
+                                                    onClick={() => navigate('/edit-profile')}
+                                                    className="px-6 py-3 rounded-2xl font-semibold bg-green-500/90 text-white hover:bg-green-600/90 transition-all duration-200 flex items-center gap-2 shadow-lg shadow-green-500/25"
+                                                    whileHover={{ scale: 1.05 }}
+                                                    whileTap={{ scale: 0.95 }}
+                                                >
+                                                    <Edit3 size={18} />
+                                                    {t('Edit Profile')}
+                                                </motion.button>
+                                            )}
+                                        </motion.div>
+                                    )}
+                                </div>
+
+                                {/* Bio */}
+                                {user.bio && (
+                                    <motion.p 
+                                        className="text-gray-700 dark:text-gray-300 text-lg leading-relaxed mb-4"
+                                        initial={{ y: 10, opacity: 0 }}
+                                        animate={{ y: 0, opacity: 1 }}
+                                        transition={{ delay: 0.5 }}
+                                    >
+                                        {user.bio}
+                                    </motion.p>
+                                )}
+
+                                {/* Join Date */}
+                                <motion.div 
+                                    className="flex items-center gap-2 text-gray-500 dark:text-gray-400 mb-6"
+                                    initial={{ y: 10, opacity: 0 }}
+                                    animate={{ y: 0, opacity: 1 }}
+                                    transition={{ delay: 0.6 }}
+                                >
+                                    <Calendar size={16} />
+                                    <span>{t('Register Time')}: {new Date(user.registertime).toLocaleDateString()}</span>
+                                </motion.div>
+
+                                {/* Stats */}
+                                <motion.div 
+                                    className="flex gap-8"
+                                    initial={{ y: 10, opacity: 0 }}
+                                    animate={{ y: 0, opacity: 1 }}
+                                    transition={{ delay: 0.7 }}
+                                >
+                                    <div className="text-center">
+                                        <div className="text-2xl font-bold text-gray-900 dark:text-white">{posts.length}</div>
+                                        <div className="text-sm text-gray-500 dark:text-gray-400">{t('Posts')}</div>
+                                    </div>
+                                    <div className="text-center">
+                                        <div className="text-2xl font-bold text-gray-900 dark:text-white">{user.followersCount}</div>
+                                        <div className="text-sm text-gray-500 dark:text-gray-400">{t('Followers')}</div>
+                                    </div>
+                                    <div className="text-center">
+                                        <div className="text-2xl font-bold text-gray-900 dark:text-white">{user.followingCount}</div>
+                                        <div className="text-sm text-gray-500 dark:text-gray-400">{t('Following')}</div>
+                                    </div>
+                                </motion.div>
+                            </div>
+                        </motion.div>
+
+                        {/* Tabs */}
+                        <motion.div 
+                            className="bg-white/70 dark:bg-gray-800/70 backdrop-blur-xl rounded-2xl shadow-xl border border-white/20 dark:border-gray-700/50 overflow-hidden"
+                            initial={{ y: 20, opacity: 0 }}
+                            animate={{ y: 0, opacity: 1 }}
+                            transition={{ delay: 0.8 }}
+                        >
+                            <div className="flex border-b border-gray-200/50 dark:border-gray-700/50">
+                                {tabs.map((tab) => (
+                                    <motion.button
+                                        key={tab.id}
+                                        onClick={() => setActiveTab(tab.id)}
+                                        className={`flex-1 px-6 py-4 text-center font-medium transition-all duration-200 relative ${
+                                            activeTab === tab.id
+                                                ? 'text-blue-600 dark:text-blue-400'
+                                                : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300'
+                                        }`}
+                                        whileHover={{ scale: 1.02 }}
+                                        whileTap={{ scale: 0.98 }}
+                                    >
+                                        <div className="flex items-center justify-center gap-2">
+                                            <tab.icon size={18} />
+                                            <span>{tab.label}</span>
+                                            <span className="text-sm bg-gray-100 dark:bg-gray-700 px-2 py-1 rounded-full">
+                                                {tab.count}
+                                            </span>
+                                        </div>
+                                        {activeTab === tab.id && (
+                                            <motion.div
+                                                className="absolute bottom-0 left-0 right-0 h-0.5 bg-blue-600 dark:bg-blue-400"
+                                                layoutId="activeTab"
+                                            />
+                                        )}
+                                    </motion.button>
+                                ))}
+                            </div>
+
+                            {/* Tab Content */}
+                            <div className="p-6">
+                                <AnimatePresence mode="wait">
+                                    {activeTab === 'posts' && (
+                                        <motion.div
+                                            key="posts"
+                                            initial={{ opacity: 0, y: 10 }}
+                                            animate={{ opacity: 1, y: 0 }}
+                                            exit={{ opacity: 0, y: -10 }}
+                                            transition={{ duration: 0.2 }}
+                                        >
+                                            {posts.length > 0 ? (
+                                                <PostList posts={posts} setPosts={setPosts} onDelete={handleDelete} />
+                                            ) : (
+                                                <div className="text-center py-12">
+                                                    <Grid3X3 size={48} className="mx-auto text-gray-400 mb-4" />
+                                                    <p className="text-gray-500 dark:text-gray-400">{t('No posts yet')}</p>
+                                                </div>
+                                            )}
+                                        </motion.div>
+                                    )}
+
+                                    {activeTab === 'followers' && (
+                                        <motion.div
+                                            key="followers"
+                                            initial={{ opacity: 0, y: 10 }}
+                                            animate={{ opacity: 1, y: 0 }}
+                                            exit={{ opacity: 0, y: -10 }}
+                                            transition={{ duration: 0.2 }}
+                                        >
+                                            {user.followers && user.followers.length > 0 ? (
+                                                <div className="space-y-4">
+                                                    {user.followers.map((follower, index) => (
+                                                        <motion.div
+                                                            key={follower._id}
+                                                            initial={{ opacity: 0, x: -20 }}
+                                                            animate={{ opacity: 1, x: 0 }}
+                                                            transition={{ delay: index * 0.1 }}
+                                                        >
+                                                            <Link to={`/${follower.username}`}>
+                                                                <div className="flex items-center space-x-4 p-4 rounded-xl hover:bg-gray-50/50 dark:hover:bg-gray-700/30 transition-colors duration-200">
+                                                                    <img
+                                                                        src={follower.avatarimg || '/resource/default-avatar.png'}
+                                                                        alt={follower.username}
+                                                                        className="w-12 h-12 rounded-full object-cover"
+                                                                    />
+                                                                    <div className="flex-1">
+                                                                        <div className="flex items-center gap-2">
+                                                                            <span className="font-semibold text-gray-900 dark:text-white">
+                                                                                {follower.avatarname || follower.username}
+                                                                            </span>
+                                                                            <UserBadges badges={follower.badges} />
+                                                                        </div>
+                                                                        <p className="text-gray-500 dark:text-gray-400">@{follower.username}</p>
+                                                                    </div>
+                                                                </div>
+                                                            </Link>
+                                                        </motion.div>
+                                                    ))}
+                                                </div>
+                                            ) : (
+                                                <div className="text-center py-12">
+                                                    <Users size={48} className="mx-auto text-gray-400 mb-4" />
+                                                    <p className="text-gray-500 dark:text-gray-400">{t('No followers yet.')}</p>
+                                                </div>
+                                            )}
+                                        </motion.div>
+                                    )}
+
+                                    {activeTab === 'following' && (
+                                        <motion.div
+                                            key="following"
+                                            initial={{ opacity: 0, y: 10 }}
+                                            animate={{ opacity: 1, y: 0 }}
+                                            exit={{ opacity: 0, y: -10 }}
+                                            transition={{ duration: 0.2 }}
+                                        >
+                                            {user.following && user.following.length > 0 ? (
+                                                <div className="space-y-4">
+                                                    {user.following.map((following, index) => (
+                                                        <motion.div
+                                                            key={following._id}
+                                                            initial={{ opacity: 0, x: -20 }}
+                                                            animate={{ opacity: 1, x: 0 }}
+                                                            transition={{ delay: index * 0.1 }}
+                                                        >
+                                                            <Link to={`/${following.username}`}>
+                                                                <div className="flex items-center space-x-4 p-4 rounded-xl hover:bg-gray-50/50 dark:hover:bg-gray-700/30 transition-colors duration-200">
+                                                                    <img
+                                                                        src={following.avatarimg || '/resource/default-avatar.png'}
+                                                                        alt={following.username}
+                                                                        className="w-12 h-12 rounded-full object-cover"
+                                                                    />
+                                                                    <div className="flex-1">
+                                                                        <div className="flex items-center gap-2">
+                                                                            <span className="font-semibold text-gray-900 dark:text-white">
+                                                                                {following.avatarname || following.username}
+                                                                            </span>
+                                                                            <UserBadges badges={following.badges} />
+                                                                        </div>
+                                                                        <p className="text-gray-500 dark:text-gray-400">@{following.username}</p>
+                                                                    </div>
+                                                                </div>
+                                                            </Link>
+                                                        </motion.div>
+                                                    ))}
+                                                </div>
+                                            ) : (
+                                                <div className="text-center py-12">
+                                                    <UserPlus size={48} className="mx-auto text-gray-400 mb-4" />
+                                                    <p className="text-gray-500 dark:text-gray-400">{t('Not following anyone yet.')}</p>
+                                                </div>
+                                            )}
+                                        </motion.div>
+                                    )}
+                                </AnimatePresence>
+                            </div>
+                        </motion.div>
+                    </>
                 )}
             </div>
-        </div>
+        </motion.div>
     );
 }
 
