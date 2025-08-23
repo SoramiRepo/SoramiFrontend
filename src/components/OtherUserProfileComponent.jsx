@@ -25,7 +25,21 @@ function OtherUserProfileComponent() {
     const { t } = useTranslation();
 
     const handleDelete = (postId) => {
-        setPosts(prev => prev.filter(post => post._id !== postId));
+        setPosts(prev => {
+            // 移除主帖子
+            const filteredPosts = prev.filter(post => post._id !== postId);
+            
+            // 同时移除所有相关的子帖子（回复）
+            const postsWithoutChildren = filteredPosts.filter(post => {
+                // 如果这个帖子是已删除帖子的回复，也要移除
+                if (post.parent === postId) {
+                    return false;
+                }
+                return true;
+            });
+            
+            return postsWithoutChildren;
+        });
     };
 
     useEffect(() => {

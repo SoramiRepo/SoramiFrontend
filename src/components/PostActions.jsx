@@ -38,17 +38,23 @@ function PostActions({
                     },
                 });
 
-                const data = await response.json();
-
-                if (response.ok) {
-                    setIsLiked(data.post.isLiked);  // Update isLiked from response
-                    setLikeCount(data.post.likeCount);  // Update likeCount from response
-                } else {
-                    showToast(data.message || t('operationFailed'), 'error');
+                if (response.status === 404) {
+                    console.log('Post not found (404) in PostActions');
+                    // 帖子不存在，但不显示错误提示，因为这是正常情况
+                    return;
                 }
+
+                if (!response.ok) {
+                    console.error('Failed to fetch post details, status:', response.status);
+                    return;
+                }
+
+                const data = await response.json();
+                setIsLiked(data.post.isLiked);  // Update isLiked from response
+                setLikeCount(data.post.likeCount);  // Update likeCount from response
             } catch (error) {
                 console.error('Fetch Post Details Error:', error);
-                showToast(t('operationFailed'), 'error');
+                // 不显示错误提示，因为这可能是因为帖子被删除
             }
         };
 
@@ -99,14 +105,21 @@ function PostActions({
                 body: JSON.stringify({ repostId: targetPostId }),
             });
 
-            const data = await response.json();
-
-            if (response.ok) {
-                showToast(t('reposted'), 'success');
-                onRepostClick?.(data.post);
-            } else {
-                showToast(data.message || t('repostFailed'), 'error');
+            if (response.status === 404) {
+                console.log('Post not found (404) during repost');
+                showToast('Post no longer exists', 'error');
+                return;
             }
+
+            if (!response.ok) {
+                const data = await response.json();
+                showToast(data.message || t('repostFailed'), 'error');
+                return;
+            }
+
+            const data = await response.json();
+            showToast(t('reposted'), 'success');
+            onRepostClick?.(data.post);
         } catch (error) {
             console.error('Repost error:', error);
             showToast(t('repostFailed'), 'error');
@@ -133,23 +146,30 @@ function PostActions({
                 },
             });
 
-            const data = await response.json();
+            if (response.status === 404) {
+                console.log('Post not found (404) during like/unlike');
+                showToast('Post no longer exists', 'error');
+                return;
+            }
 
-            if (response.ok) {
-                setIsLiked(!isLiked);
-                setLikeCount(prev => isLiked ? prev - 1 : prev + 1);
-                
-                // 只有like时才创建通知，unlike时不创建通知
-                if (!isLiked && getCurrentUserId() !== originalPost.author._id) {
-                    await createNotification(
-                        'like',
-                        originalPost.author._id,
-                        postId,
-                        `${currentUsername} liked your post`
-                    );
-                }
-            } else {
+            if (!response.ok) {
+                const data = await response.json();
                 showToast(data.message || t('operationFailed'), 'error');
+                return;
+            }
+
+            const data = await response.json();
+            setIsLiked(!isLiked);
+            setLikeCount(prev => isLiked ? prev - 1 : prev + 1);
+            
+            // 只有like时才创建通知，unlike时不创建通知
+            if (!isLiked && getCurrentUserId() !== originalPost.author._id) {
+                await createNotification(
+                    'like',
+                    originalPost.author._id,
+                    postId,
+                    `${currentUsername} liked your post`
+                );
             }
         } catch (error) {
             console.error('Like error:', error);

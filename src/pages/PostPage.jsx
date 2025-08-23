@@ -18,8 +18,22 @@ function PostPage() {
                 const headers = token ? { Authorization: `Bearer ${token}` } : {};
                 
                 const res = await fetch(`${config.apiBaseUrl}/api/post/${id}`, { headers });
+                
+                if (res.status === 404) {
+                    console.log('Post not found (404)');
+                    setPost(null);
+                    setReplies([]);
+                    return;
+                }
+                
+                if (!res.ok) {
+                    console.error('Failed to fetch post, status:', res.status);
+                    setPost(null);
+                    setReplies([]);
+                    return;
+                }
+                
                 const data = await res.json();
-
                 setPost(data.post || null);
                 setReplies(Array.isArray(data.replies) ? data.replies : []);
             } catch (err) {

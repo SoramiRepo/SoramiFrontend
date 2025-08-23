@@ -22,8 +22,9 @@ function ReplyItem({ post, allPosts = [], onDelete, onReplySuccess, isLast = fal
     const currentUserId = getCurrentUserId();
     const { showToast } = useToast();
 
-    const childPosts = allPosts.filter(p => p.parent === post._id);
-    const parentPost = allPosts.find(p => p._id === post.parent);
+    // 确保只处理有效的帖子（作者存在的）
+    const childPosts = allPosts.filter(p => p && p.parent === post._id && p.author);
+    const parentPost = allPosts.find(p => p && p._id === post.parent && p.author);
 
     const handleDelete = async (e) => {
         e.stopPropagation();
@@ -42,8 +43,12 @@ function ReplyItem({ post, allPosts = [], onDelete, onReplySuccess, isLast = fal
 
             const result = await res.json();
             if (res.ok) {
+                // 先调用onDelete更新父组件状态
                 onDelete?.(post._id);
                 showToast('Post deleted successfully', 'success');
+                
+                // 防止后续操作访问已删除的帖子
+                return;
             } else {
                 showToast(result.message || 'Deletion failed', 'error');
             }
@@ -80,7 +85,7 @@ function ReplyItem({ post, allPosts = [], onDelete, onReplySuccess, isLast = fal
                 setReplyContent('');
                 setShowReplies(true);
                 onReplySuccess?.(result.reply);
-                await createNotification('reply', post.author, post._id, replyContent);
+                await createNotification('reply', post.author._id, post._id, replyContent);
                 return result.reply;
             } else {
                 showToast(result.message || 'Reply failed', 'error');

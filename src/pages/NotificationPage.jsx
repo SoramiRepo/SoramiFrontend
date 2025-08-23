@@ -6,6 +6,7 @@ import config from '../config';
 import { formatDistanceToNow } from 'date-fns';
 import cn from "../utils/cn";
 import { useTranslation } from 'react-i18next';
+import { useToast } from '../components/ToastContext';
 
 const NotificationPage = ({ onNotificationUpdate }) => {
     const [notifications, setNotifications] = useState([]);
@@ -14,6 +15,7 @@ const NotificationPage = ({ onNotificationUpdate }) => {
     const [selectedType, setSelectedType] = useState('all'); // 'all', 'like', 'reply', 'follow', 'repost'
     const navigate = useNavigate();
     const { t } = useTranslation();
+    const { showToast } = useToast();
 
     const token = JSON.parse(localStorage.getItem('user'))?.token;
     
@@ -129,7 +131,21 @@ const NotificationPage = ({ onNotificationUpdate }) => {
                 console.error('Failed to mark as read', err);
             }
         }
-        navigate(`/post/${n.post._id}`);
+        // 检查帖子是否存在，如果不存在则显示错误提示
+        try {
+            const token = JSON.parse(localStorage.getItem('user'))?.token;
+            const headers = token ? { Authorization: `Bearer ${token}` } : {};
+            
+            const res = await fetch(`${config.apiBaseUrl}/api/post/${n.post._id}`, { headers });
+            if (res.ok) {
+                navigate(`/post/${n.post._id}`);
+            } else {
+                showToast('This post has been deleted or is no longer available', 'error');
+            }
+        } catch (error) {
+            console.error('Failed to check post availability:', error);
+            showToast('Unable to access this post', 'error');
+        }
     };
 
     const filterOptions = [
