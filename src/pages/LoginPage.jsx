@@ -1,8 +1,9 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import config from '../config';
 import { useTranslation } from 'react-i18next';
+import passkeyService from '../services/passkeyService';
 
 function LoginPage() {
     const [isLogin, setIsLogin] = useState(true);
@@ -11,8 +12,20 @@ function LoginPage() {
     const [password, setPassword] = useState('');
     const [loading, setLoading] = useState(false);
     const [message, setMessage] = useState('');
+    const [passkeySupported, setPasskeySupported] = useState(false);
+    const [showPasskeyLogin, setShowPasskeyLogin] = useState(false);
+    const [passkeyLoading, setPasskeyLoading] = useState(false);
     const { t } = useTranslation();
     const navigate = useNavigate();
+
+    // 检查passkey支持
+    useEffect(() => {
+        const checkPasskeySupport = async () => {
+            const support = await passkeyService.checkSupport();
+            setPasskeySupported(support.supported);
+        };
+        checkPasskeySupport();
+    }, []);
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -72,6 +85,46 @@ function LoginPage() {
         }
 
         setLoading(false);
+    };
+
+    // 处理passkey登录
+    const handlePasskeyLogin = async () => {
+        if (!username.trim()) {
+            setMessage(t('username_required'));
+            return;
+        }
+
+        setPasskeyLoading(true);
+        setMessage('');
+
+        try {
+            // 检查用户是否有passkeys
+            const canUsePasskey = await passkeyService.canUsePasskeyLogin(username);
+            
+            if (!canUsePasskey) {
+                setMessage(t('no_passkey_found') || 'No passkey found for this user. Please use password login.');
+                setPasskeyLoading(false);
+                return;
+            }
+
+            // 使用passkey登录
+            const result = await passkeyService.authenticateWithPasskey(username);
+            
+            if (result.verified) {
+                localStorage.setItem(
+                    'user',
+                    JSON.stringify({ ...result.user, token: result.token })
+                );
+                navigate('/');
+            } else {
+                setMessage(t('passkey_verification_failed') || 'Passkey verification failed.');
+            }
+        } catch (error) {
+            console.error('Passkey login error:', error);
+            setMessage(error.message || t('passkey_login_error') || 'Passkey login failed.');
+        }
+
+        setPasskeyLoading(false);
     };
 
     // Animation variants
@@ -248,6 +301,55 @@ function LoginPage() {
                                 isLogin ? t('login') : t('register')
                             )}
                         </motion.button>
+
+                        {/* Passkey登录按钮 */}
+                        {isLogin && passkeySupported && (
+                            <>
+                                <motion.div
+                                    className="relative"
+                                    variants={itemVariants}
+                                >
+                                    <div className="absolute inset-0 flex items-center">
+                                        <div className="w-full border-t border-gray-300 dark:border-gray-600" />
+                                    </div>
+                                    <div className="relative flex justify-center text-sm">
+                                        <span className="px-2 bg-white dark:bg-gray-900 text-gray-500 dark:text-gray-400">
+                                            {t('or') || 'or'}
+                                        </span>
+                                    </div>
+                                </motion.div>
+
+                                <motion.button
+                                    type="button"
+                                    onClick={handlePasskeyLogin}
+                                    disabled={passkeyLoading || !username.trim()}
+                                    className="w-full bg-gradient-to-r from-green-600 to-emerald-600 text-white py-3 rounded-lg font-medium shadow-lg hover:shadow-xl transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                                    variants={buttonVariants}
+                                    initial="idle"
+                                    whileHover={passkeyLoading ? "loading" : "hover"}
+                                    whileTap="tap"
+                                    animate={passkeyLoading ? "loading" : "idle"}
+                                >
+                                    {passkeyLoading ? (
+                                        <motion.div 
+                                            className="flex items-center justify-center gap-2"
+                                            animate={{ rotate: 360 }}
+                                            transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+                                        >
+                                            <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full"></div>
+                                            {t('authenticating') || 'Authenticating...'}
+                                        </motion.div>
+                                    ) : (
+                                        <>
+                                            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 7a2 2 0 012 2m4 0a6 6 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z" />
+                                            </svg>
+                                            {t('login_with_passkey') || 'Login with Passkey'}
+                                        </>
+                                    )}
+                                </motion.button>
+                            </>
+                        )}
                     </motion.form>
                 </AnimatePresence>
 
