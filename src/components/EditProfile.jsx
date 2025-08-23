@@ -128,8 +128,16 @@ function EditProfile() {
                 
                 localStorage.setItem('user', JSON.stringify(userData));
 
-                // 更新原始数据
-                setOriginalData(formData);
+                // 更新原始数据和当前表单数据
+                const updatedFormData = { ...formData };
+                if (result.user) {
+                    // 使用后端返回的最新数据
+                    updatedFormData.avatarname = result.user.avatarname || '';
+                    updatedFormData.avatarimg = result.user.avatarimg || '';
+                    updatedFormData.bio = result.user.bio || '';
+                    setFormData(updatedFormData);
+                }
+                setOriginalData(updatedFormData);
                 
                 showToast(t('profileUpdated') || 'Profile updated successfully', 'success');
                 

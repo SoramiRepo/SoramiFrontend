@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { motion, AnimatePresence } from 'framer-motion';
 import uploadService from '../services/uploadService';
@@ -11,6 +11,11 @@ const AvatarUpload = ({ currentAvatar, onAvatarChange, onAvatarUrlChange }) => {
     const fileInputRef = useRef(null);
     const { t } = useTranslation();
     const { showToast } = useToast();
+
+    // 当 currentAvatar 变化时更新预览 URL
+    useEffect(() => {
+        setPreviewUrl(currentAvatar || '');
+    }, [currentAvatar]);
 
     // 处理文件选择
     const handleFileSelect = async (event) => {
@@ -65,6 +70,8 @@ const AvatarUpload = ({ currentAvatar, onAvatarChange, onAvatarUrlChange }) => {
 
             // 更新头像URL
             const avatarUrl = result.file.url;
+            setPreviewUrl(avatarUrl); // 立即更新预览
+            
             if (onAvatarChange) {
                 onAvatarChange(avatarUrl);
             }
@@ -112,9 +119,11 @@ const AvatarUpload = ({ currentAvatar, onAvatarChange, onAvatarUrlChange }) => {
             {/* 头像预览区域 */}
             <div className="relative">
                 <motion.div
-                    className="w-32 h-32 rounded-full border-4 border-gray-200 dark:border-gray-700 overflow-hidden bg-gray-100 dark:bg-gray-800"
+                    className="w-32 h-32 rounded-full border-4 border-gray-200 dark:border-gray-700 overflow-hidden bg-gray-100 dark:bg-gray-800 cursor-pointer"
                     whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
                     transition={{ duration: 0.2 }}
+                    onClick={triggerFileSelect}
                 >
                     {previewUrl ? (
                         <img
@@ -154,16 +163,18 @@ const AvatarUpload = ({ currentAvatar, onAvatarChange, onAvatarUrlChange }) => {
 
                 {/* 编辑按钮 */}
                 {!isUploading && (
-                    <button
+                    <motion.button
                         onClick={triggerFileSelect}
                         className="absolute bottom-0 right-0 w-10 h-10 bg-blue-500 hover:bg-blue-600 text-white rounded-full flex items-center justify-center shadow-lg transition-colors duration-200"
-                        title="Change avatar"
+                        title="Upload new avatar"
+                        whileHover={{ scale: 1.1 }}
+                        whileTap={{ scale: 0.9 }}
                     >
                         <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" />
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 13a3 3 0 11-6 0 3 3 0 016 0z" />
                         </svg>
-                    </button>
+                    </motion.button>
                 )}
             </div>
 
@@ -176,34 +187,12 @@ const AvatarUpload = ({ currentAvatar, onAvatarChange, onAvatarUrlChange }) => {
                 className="hidden"
             />
 
-            {/* 操作按钮 */}
-            <div className="flex space-x-2">
-                <motion.button
-                    onClick={triggerFileSelect}
-                    disabled={isUploading}
-                    className="px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-md text-sm font-medium disabled:opacity-50 disabled:cursor-not-allowed transition-colors duration-200"
-                    whileHover={{ scale: 1.05 }}
-                    whileTap={{ scale: 0.95 }}
-                >
-                    {isUploading ? 'Uploading...' : (previewUrl ? 'Change Avatar' : 'Upload Avatar')}
-                </motion.button>
 
-                {previewUrl && !isUploading && (
-                    <motion.button
-                        onClick={handleRemoveAvatar}
-                        className="px-4 py-2 bg-red-500 hover:bg-red-600 text-white rounded-md text-sm font-medium transition-colors duration-200"
-                        whileHover={{ scale: 1.05 }}
-                        whileTap={{ scale: 0.95 }}
-                    >
-                        Remove
-                    </motion.button>
-                )}
-            </div>
 
             {/* 文件要求说明 */}
             <div className="text-xs text-gray-500 dark:text-gray-400 text-center max-w-xs">
-                <p>Supported formats: JPG, PNG, GIF, WebP</p>
-                <p>Maximum size: 1MB</p>
+                <p>Click avatar to upload image</p>
+                <p>JPG, PNG, GIF, WebP • Max 1MB</p>
             </div>
         </div>
     );
