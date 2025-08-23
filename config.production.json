@@ -1,0 +1,7 @@
+{
+    "apiBaseUrl": "https://api.yourdomain.com",
+    "passkey": {
+        "rpId": "yourdomain.com",
+        "rpOrigin": "https://yourdomain.com"
+    }
+}

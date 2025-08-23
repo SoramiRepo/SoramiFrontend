@@ -65,7 +65,7 @@ class PasskeyService {
             const credential = await startRegistration(options);
 
             // 3. 验证注册响应
-            // 根据WebAuthn规范，credential对象包含所有必要信息，包括挑战
+            // Send both the credential and the original challenge
             const verificationResponse = await fetch(`${this.apiBaseUrl}/api/passkey/verify-registration`, {
                 method: 'POST',
                 headers: {
@@ -73,8 +73,8 @@ class PasskeyService {
                     'Authorization': `Bearer ${token}`
                 },
                 body: JSON.stringify({
-                    response: credential
-                    // 不需要单独发送challenge，因为credential中已包含
+                    response: credential,
+                    challenge: challenge // Send the original challenge for verification
                 })
             });
 
@@ -114,15 +114,15 @@ class PasskeyService {
             const credential = await startAuthentication(options);
 
             // 3. 验证认证响应
-            // 根据WebAuthn规范，credential对象包含所有必要信息，包括挑战
+            // Send both the credential and the original challenge
             const verificationResponse = await fetch(`${this.apiBaseUrl}/api/passkey/verify-authentication`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
                 },
                 body: JSON.stringify({
-                    response: credential
-                    // 不需要单独发送challenge，因为credential中已包含
+                    response: credential,
+                    challenge: challenge // Send the original challenge for verification
                 })
             });
 
