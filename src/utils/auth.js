@@ -13,7 +13,8 @@ export function getCurrentUser() {
 // 获取当前用户ID
 export function getCurrentUserId() {
     const user = getCurrentUser();
-    return user?._id;
+    // 兼容两种字段名：_id 和 id
+    return user?._id || user?.id;
 }
 
 // 检查用户是否已登录

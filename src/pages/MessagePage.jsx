@@ -17,6 +17,7 @@ import {
     leaveChatRoom,
     isWSConnected 
 } from '../utils/ws';
+import { getCurrentUserId } from '../utils/auth';
 import MessageList from '../components/MessageList';
 import ChatMessage from '../components/ChatMessage';
 import ChatInput from '../components/ChatInput';
@@ -38,7 +39,24 @@ export default function MessagePage() {
     const [typingUser, setTypingUser] = useState(null);
     
     const messagesEndRef = useRef(null);
-    const currentUserId = JSON.parse(localStorage.getItem('user'))?._id;
+    
+    // 获取当前用户ID
+    const currentUserId = getCurrentUserId();
+    
+    // 调试信息
+    console.log('MessagePage - Current user ID:', currentUserId);
+    console.log('MessagePage - localStorage user:', localStorage.getItem('user'));
+    
+    // 如果还是获取不到，尝试其他方法
+    if (!currentUserId) {
+        console.error('Failed to get current user ID! Available localStorage keys:', Object.keys(localStorage));
+        console.log('localStorage contents:', {
+            user: localStorage.getItem('user'),
+            token: localStorage.getItem('token'),
+            userId: localStorage.getItem('userId'),
+            currentUserId: localStorage.getItem('currentUserId')
+        });
+    }
 
     // 初始化WebSocket连接
     useEffect(() => {
@@ -57,8 +75,8 @@ export default function MessagePage() {
             
             // 更新消息列表 - 检查是否属于当前会话
             const isCurrentSession = currentChatUser && (
-                (message.sender?._id === currentChatUser._id || message.sender === currentChatUser._id) ||
-                (message.receiver === currentChatUser._id || message.receiver?._id === currentChatUser._id)
+                (message.sender?._id === currentChatUser._id || message.sender?.id === currentChatUser._id || message.sender === currentChatUser._id) ||
+                (message.receiver === currentChatUser._id || message.receiver?._id === currentChatUser._id || message.receiver === currentChatUser._id)
             );
             
             if (isCurrentSession) {
@@ -66,14 +84,14 @@ export default function MessagePage() {
                 setMessages(prev => [...prev, message]);
                 
                 // 标记消息为已读
-                if ((message.receiver === currentUserId || message.receiver?._id === currentUserId) && !message.isRead) {
+                if ((message.receiver === currentUserId || message.receiver?._id === currentUserId || message.receiver?.id === currentUserId) && !message.isRead) {
                     markMessageAsRead(message._id);
                 }
             }
             
             // 更新未读消息数
-            if (message.receiver === currentUserId || message.receiver?._id === currentUserId) {
-                const senderId = message.sender?._id || message.sender;
+            if (message.receiver === currentUserId || message.receiver?._id === currentUserId || message.receiver?.id === currentUserId) {
+                const senderId = message.sender?._id || message.sender?.id || message.sender;
                 if (senderId) {
                     setUnreadMap(prev => ({
                         ...prev,
@@ -218,6 +236,20 @@ export default function MessagePage() {
             setIsLoading(true);
             const response = await fetchChatHistory(currentChatUser._id, page);
             const newMessages = response.messages || [];
+            
+            // 调试：检查服务端返回的消息格式
+            console.log('Loaded messages from server:', newMessages);
+            console.log('Current user ID:', currentUserId);
+            newMessages.forEach((msg, index) => {
+                console.log(`Message ${index}:`, {
+                    id: msg._id,
+                    content: msg.content,
+                    sender: msg.sender,
+                    senderType: typeof msg.sender,
+                    senderId: msg.sender?._id || msg.sender,
+                    isOwnMessage: (msg.sender?._id === currentUserId || msg.sender === currentUserId)
+                });
+            });
             
             if (append) {
                 setMessages(prev => [...newMessages, ...prev]);
@@ -486,27 +518,32 @@ export default function MessagePage() {
                             
                             {/* 消息列表 */}
                             <AnimatePresence>
-                                {messages.map((message) => {
-                                    const isOwn = message.sender?._id === currentUserId || message.sender === currentUserId;
-                                    console.log('Rendering message:', { 
-                                        id: message._id, 
-                                        content: message.content, 
-                                        sender: message.sender, 
-                                        isOwn, 
-                                        isTemp: message.isTemp 
-                                    });
-                                    
-                                    return (
-                                        <ChatMessage
-                                            key={message._id}
-                                            message={message}
-                                            isOwnMessage={isOwn}
-                                            onDelete={handleDeleteMessage}
-                                            onMarkAsRead={handleMarkMessageAsRead}
-                                            showAvatar={!isOwn}
-                                        />
-                                    );
-                                })}
+                                                            {messages.map((message) => {
+                                // 兼容两种字段名：_id 和 id
+                                const senderId = message.sender?._id || message.sender?.id || message.sender;
+                                const isOwn = senderId === currentUserId;
+                                
+                                console.log('Rendering message:', { 
+                                    id: message._id, 
+                                    content: message.content, 
+                                    sender: message.sender, 
+                                    senderId,
+                                    currentUserId,
+                                    isOwn, 
+                                    isTemp: message.isTemp 
+                                });
+                                
+                                return (
+                                    <ChatMessage
+                                        key={message._id}
+                                        message={message}
+                                        isOwnMessage={isOwn}
+                                        onDelete={handleDeleteMessage}
+                                        onMarkAsRead={handleMarkMessageAsRead}
+                                        showAvatar={!isOwn}
+                                    />
+                                );
+                            })}
                             </AnimatePresence>
                             
                             {/* 滚动到底部的引用 */}
