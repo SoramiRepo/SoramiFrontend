@@ -372,7 +372,7 @@ function SearchPage() {
                                                                     <div className="flex-1 min-w-0">
                                                                         <div className="font-semibold text-gray-900 dark:text-white flex items-center gap-2 mb-1">
                                                                             <span className="truncate">{user.avatarname || user.username}</span>
-                                                                            <UserBadges badges={user.badges} />
+                                                                            <UserBadges badges={user.badges} size="default" />
                                                                             <FollowBackIndicator currentUserId={currentUserId} followerList={user.following} />
                                                                         </div>
                                                                         <div className="text-sm text-gray-500 dark:text-gray-400">@{user.username}</div>

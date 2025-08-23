@@ -39,9 +39,13 @@ function PostHeader({ post, onDelete, currentUserId, parentPost, deleting }) {
                 />
             </Link>
             <div>
-                <div className="flex items-center space-x-2 font-semibold text-sm text-black dark:text-white">
-                    {post.author?.avatarname || post.author?.username}
-                    <UserBadges badges={post.author?.badges || []} />
+                <div className="flex items-center gap-2 font-semibold text-sm text-black dark:text-white">
+                    <span className="truncate">
+                        {post.author?.avatarname || post.author?.username}
+                    </span>
+                    <div className="flex-shrink-0">
+                        <UserBadges badges={post.author?.badges || []} size="small" showTooltip={false} expandOnHover={false} circular={true} />
+                    </div>
                 </div>
                 <div className="text-gray-500 dark:text-gray-400 text-xs mt-1">
                     {format(post.createdAt)}

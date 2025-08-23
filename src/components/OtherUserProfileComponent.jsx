@@ -241,7 +241,7 @@ function OtherUserProfileComponent() {
                                             transition={{ delay: 0.3 }}
                                         >
                                             {user.avatarname || user.username}
-                                            <UserBadges badges={user.badges} />
+                                            <UserBadges badges={user.badges} size="large" />
                                             <FollowBackIndicator currentUserId={currentUserId} followerList={user.following} />
                                         </motion.h1>
                                         <p className="text-gray-500 dark:text-gray-400 text-lg">@{user.username}</p>
@@ -418,7 +418,7 @@ function OtherUserProfileComponent() {
                                                                             <span className="font-semibold text-gray-900 dark:text-white">
                                                                                 {follower.avatarname || follower.username}
                                                                             </span>
-                                                                            <UserBadges badges={follower.badges} />
+                                                                            <UserBadges badges={follower.badges} size="small" showTooltip={false} />
                                                                         </div>
                                                                         <p className="text-gray-500 dark:text-gray-400">@{follower.username}</p>
                                                                     </div>
@@ -465,7 +465,7 @@ function OtherUserProfileComponent() {
                                                                             <span className="font-semibold text-gray-900 dark:text-white">
                                                                                 {following.avatarname || following.username}
                                                                             </span>
-                                                                            <UserBadges badges={following.badges} />
+                                                                            <UserBadges badges={following.badges} size="small" showTooltip={false} />
                                                                         </div>
                                                                         <p className="text-gray-500 dark:text-gray-400">@{following.username}</p>
                                                                     </div>
