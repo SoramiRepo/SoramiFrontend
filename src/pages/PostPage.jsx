@@ -14,7 +14,10 @@ function PostPage() {
     useEffect(() => {
         const fetchPost = async () => {
             try {
-                const res = await fetch(`${config.apiBaseUrl}/api/post/${id}`);
+                const token = JSON.parse(localStorage.getItem('user'))?.token;
+                const headers = token ? { Authorization: `Bearer ${token}` } : {};
+                
+                const res = await fetch(`${config.apiBaseUrl}/api/post/${id}`, { headers });
                 const data = await res.json();
 
                 setPost(data.post || null);

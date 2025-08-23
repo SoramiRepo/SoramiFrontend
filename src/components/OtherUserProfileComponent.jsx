@@ -45,7 +45,9 @@ function OtherUserProfileComponent() {
     
             setLoading(true);
             try {
-                const userRes = await fetch(`${config.apiBaseUrl}/api/user/${username}`);
+                const userRes = await fetch(`${config.apiBaseUrl}/api/user/${username}`, {
+                    headers: { Authorization: `Bearer ${token}` }
+                });
                 const userData = await userRes.json();
     
                 if (!userRes.ok || !userData.user) {

@@ -54,9 +54,12 @@ function SearchPage() {
         localStorage.setItem('searchHistory', JSON.stringify(newHistory));
 
         try {
+            const token = JSON.parse(localStorage.getItem('user'))?.token;
+            const headers = token ? { Authorization: `Bearer ${token}` } : {};
+            
             const [userRes, postRes] = await Promise.all([
-                fetch(`${config.apiBaseUrl}/api/user/search?keyword=${trimmed}`),
-                fetch(`${config.apiBaseUrl}/api/post/fetch?keyword=${trimmed}`)
+                fetch(`${config.apiBaseUrl}/api/user/search?keyword=${trimmed}`, { headers }),
+                fetch(`${config.apiBaseUrl}/api/post/fetch?keyword=${trimmed}`, { headers })
             ]);
 
             const userData = await userRes.json();
@@ -87,9 +90,12 @@ function SearchPage() {
         localStorage.setItem('searchHistory', JSON.stringify(newHistory));
 
         // 执行搜索
+        const token = JSON.parse(localStorage.getItem('user'))?.token;
+        const headers = token ? { Authorization: `Bearer ${token}` } : {};
+        
         Promise.all([
-            fetch(`${config.apiBaseUrl}/api/user/search?keyword=${trimmed}`),
-            fetch(`${config.apiBaseUrl}/api/post/fetch?keyword=${trimmed}`)
+            fetch(`${config.apiBaseUrl}/api/user/search?keyword=${trimmed}`, { headers }),
+            fetch(`${config.apiBaseUrl}/api/post/fetch?keyword=${trimmed}`, { headers })
         ]).then(async ([userRes, postRes]) => {
             const userData = await userRes.json();
             const postData = await postRes.json();

@@ -79,13 +79,34 @@ function HomePage() {
 
     // 这里加载帖子
     useEffect(() => {
-        fetch(`${config.apiBaseUrl}/api/post/all`)
-        .then(res => res.json())
-        .then(data => {
-            if (data.posts) {
-                setPosts(data.posts);
+        const fetchPosts = async () => {
+            try {
+                const { createAuthHeaders, handleAuthError } = await import('../utils/auth');
+                const headers = createAuthHeaders();
+                
+                const res = await fetch(`${config.apiBaseUrl}/api/post/all`, { headers });
+                if (res.ok) {
+                    const data = await res.json();
+                    if (data.posts) {
+                        setPosts(data.posts);
+                    }
+                } else if (res.status === 401) {
+                    console.log('User not authenticated, posts may be limited');
+                    // 即使没有认证，也尝试获取公开帖子
+                    const publicRes = await fetch(`${config.apiBaseUrl}/api/post/all`);
+                    if (publicRes.ok) {
+                        const publicData = await publicRes.json();
+                        if (publicData.posts) {
+                            setPosts(publicData.posts);
+                        }
+                    }
+                }
+            } catch (error) {
+                console.error('Failed to fetch posts:', error);
             }
-        });
+        };
+        
+        fetchPosts();
     }, []);
 
     // 加载未读通知数量
@@ -98,6 +119,12 @@ function HomePage() {
                 const res = await fetch(`${config.apiBaseUrl}/api/notification/unread-count`, {
                     headers: { Authorization: `Bearer ${token}` },
                 });
+                
+                if (res.status === 429) {
+                    console.warn('Rate limited when fetching unread count');
+                    return;
+                }
+                
                 const data = await res.json();
                 if (res.ok) {
                     setUnreadCount(data.count);
@@ -119,6 +146,12 @@ function HomePage() {
             const res = await fetch(`${config.apiBaseUrl}/api/notification/unread-count`, {
                 headers: { Authorization: `Bearer ${token}` },
             });
+            
+            if (res.status === 429) {
+                console.warn('Rate limited when updating unread count');
+                return;
+            }
+            
             const data = await res.json();
             if (res.ok) {
                 setUnreadCount(data.count);
