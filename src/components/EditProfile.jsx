@@ -116,6 +116,16 @@ function EditProfile() {
                 Object.keys(changedData).forEach(key => {
                     userData[key] = changedData[key];
                 });
+                
+                // 如果后端返回了用户数据，使用后端数据
+                if (result.user) {
+                    Object.keys(result.user).forEach(key => {
+                        if (key !== 'id') { // 跳过 id 字段，使用原来的
+                            userData[key] = result.user[key];
+                        }
+                    });
+                }
+                
                 localStorage.setItem('user', JSON.stringify(userData));
 
                 // 更新原始数据
