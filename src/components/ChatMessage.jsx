@@ -108,7 +108,7 @@ const ChatMessage = ({
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -10 }}
-            className={`flex gap-3 mb-4 ${isOwnMessage ? 'flex-row-reverse' : 'flex-row'}`}
+            className={`flex gap-2 md:gap-3 mb-3 md:mb-4 ${isOwnMessage ? 'flex-row-reverse' : 'flex-row'}`}
             key={message._id} // 确保key唯一性
         >
             {/* 头像 */}
@@ -117,16 +117,16 @@ const ChatMessage = ({
                     <img
                         src={message.sender?.avatarimg || message.senderInfo?.avatarimg || '/resource/default-avatar.png'}
                         alt="avatar"
-                        className="w-8 h-8 rounded-full object-cover"
+                        className="w-7 h-7 md:w-8 md:h-8 rounded-full object-cover"
                     />
                 </div>
             )}
 
             {/* 消息内容 */}
-            <div className={`flex flex-col ${isOwnMessage ? 'items-end' : 'items-start'} max-w-[70%]`}>
+            <div className={`flex flex-col ${isOwnMessage ? 'items-end' : 'items-start'} max-w-[80%] md:max-w-[70%]`}>
                 {/* 用户名（仅显示他人消息） */}
                 {!isOwnMessage && showAvatar && (
-                    <div className="text-xs text-gray-500 mb-1">
+                    <div className="text-xs text-gray-500 dark:text-gray-400 mb-1 px-1">
                         {message.sender?.avatarname || message.sender?.username || 
                          message.senderInfo?.avatarname || message.senderInfo?.username}
                     </div>
@@ -136,10 +136,10 @@ const ChatMessage = ({
                 <div className="relative group">
                     <div
                         className={`
-                            inline-block px-4 py-2 rounded-2xl max-w-full
+                            inline-block px-3 py-2 md:px-4 md:py-3 rounded-2xl max-w-full break-words
                             ${isOwnMessage 
-                                ? 'bg-blue-500 text-white rounded-br-md' 
-                                : 'bg-gray-100 dark:bg-gray-700 text-gray-900 dark:text-white rounded-bl-md'
+                                ? 'bg-blue-500 text-white rounded-br-md shadow-md' 
+                                : 'bg-gray-100 dark:bg-gray-700 text-gray-900 dark:text-white rounded-bl-md shadow-sm'
                             }
                         `}
                     >

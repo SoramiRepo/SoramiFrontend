@@ -167,7 +167,7 @@ const ChatInput = ({
     }, [isTyping, receiverId]);
 
     return (
-        <div className="border-t bg-white dark:bg-gray-800 p-4">
+        <div className="p-3 md:p-4">
             {/* 文件上传预览 */}
             {selectedFile && (
                 <motion.div
@@ -210,16 +210,17 @@ const ChatInput = ({
             )}
 
             {/* 输入区域 */}
-            <div className="flex items-end gap-3">
+            <div className="flex items-end gap-2 md:gap-3">
                 {/* 文件菜单按钮 */}
                 <div className="relative">
-                    <button
+                    <motion.button
                         onClick={() => setShowFileMenu(!showFileMenu)}
                         disabled={disabled}
-                        className="p-2 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 disabled:opacity-50"
+                        whileTap={{ scale: 0.95 }}
+                        className="p-2 md:p-2.5 text-gray-500 hover:text-blue-600 dark:text-gray-400 dark:hover:text-blue-400 disabled:opacity-50 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
                     >
-                        <Paperclip size={20} />
-                    </button>
+                        <Paperclip size={18} className="md:w-5 md:h-5" />
+                    </motion.button>
 
                     <AnimatePresence>
                         {showFileMenu && (
@@ -256,20 +257,21 @@ const ChatInput = ({
                         onKeyDown={handleKeyDown}
                         disabled={disabled}
                         placeholder={placeholder}
-                        className="w-full resize-none border border-gray-300 dark:border-gray-600 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-white disabled:opacity-50"
+                        className="w-full resize-none border border-gray-300 dark:border-gray-600 rounded-xl px-3 py-2.5 md:px-4 md:py-3 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-gray-50 dark:bg-gray-700 dark:text-white disabled:opacity-50 text-sm md:text-base"
                         rows={1}
-                        style={{ minHeight: '40px', maxHeight: '120px' }}
+                        style={{ minHeight: '44px', maxHeight: '120px' }}
                     />
                 </div>
 
                 {/* 发送按钮 */}
-                <button
+                <motion.button
                     onClick={handleSend}
                     disabled={!input.trim() || disabled}
-                    className="p-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                    whileTap={{ scale: 0.95 }}
+                    className="p-2.5 md:p-3 bg-blue-500 text-white rounded-xl hover:bg-blue-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors shadow-md hover:shadow-lg"
                 >
-                    <Send size={20} />
-                </button>
+                    <Send size={18} className="md:w-5 md:h-5" />
+                </motion.button>
             </div>
 
             {/* 隐藏的文件输入 */}
