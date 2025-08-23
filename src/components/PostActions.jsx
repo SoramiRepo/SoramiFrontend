@@ -118,6 +118,20 @@ function PostActions({
             }
 
             const data = await response.json();
+            
+            // Create notification for repost
+            try {
+                await createNotification(
+                    'repost',
+                    targetPost.author._id,
+                    targetPostId,
+                    `${currentUsername} reposted your post`
+                );
+            } catch (notificationErr) {
+                console.error('Failed to create repost notification:', notificationErr);
+                // 通知创建失败不影响repost操作
+            }
+            
             showToast(t('reposted'), 'success');
             onRepostClick?.(data.post);
         } catch (error) {
