@@ -16,8 +16,25 @@ export async function sendMessage(receiverId, content, messageType = 'text') {
     });
 
     if (!res.ok) {
-        const error = await res.json();
-        throw new Error(error.message || 'Failed to send message');
+        let errorMessage = 'Failed to send message';
+        try {
+            const error = await res.json();
+            errorMessage = error.message || errorMessage;
+        } catch (e) {
+            // 如果响应不是JSON格式，使用状态码信息
+            if (res.status === 400) {
+                errorMessage = 'Invalid input data';
+            } else if (res.status === 401) {
+                errorMessage = 'Authentication required';
+            } else if (res.status === 403) {
+                errorMessage = 'Access denied';
+            } else if (res.status === 404) {
+                errorMessage = 'Resource not found';
+            } else if (res.status === 429) {
+                errorMessage = 'Too many requests';
+            }
+        }
+        throw new Error(errorMessage);
     }
 
     return res.json();
@@ -33,8 +50,18 @@ export async function fetchChatHistory(targetUserId, page = 1, limit = 50) {
     });
 
     if (!res.ok) {
-        const error = await res.json();
-        throw new Error(error.message || 'Failed to fetch chat history');
+        let errorMessage = 'Failed to fetch chat history';
+        try {
+            const error = await res.json();
+            errorMessage = error.message || errorMessage;
+        } catch (e) {
+            if (res.status === 400) errorMessage = 'Invalid input data';
+            else if (res.status === 401) errorMessage = 'Authentication required';
+            else if (res.status === 403) errorMessage = 'Access denied';
+            else if (res.status === 404) errorMessage = 'Resource not found';
+            else if (res.status === 429) errorMessage = 'Too many requests';
+        }
+        throw new Error(errorMessage);
     }
 
     return res.json();
@@ -53,8 +80,17 @@ export async function fetchChatSessions(page = 1, limit = 20) {
         if (res.status === 429) {
             throw new Error('Too Many Requests - Rate limit exceeded');
         }
-        const error = await res.json();
-        throw new Error(error.message || 'Failed to fetch chat sessions');
+        let errorMessage = 'Failed to fetch chat sessions';
+        try {
+            const error = await res.json();
+            errorMessage = error.message || errorMessage;
+        } catch (e) {
+            if (res.status === 400) errorMessage = 'Invalid input data';
+            else if (res.status === 401) errorMessage = 'Authentication required';
+            else if (res.status === 403) errorMessage = 'Access denied';
+            else if (res.status === 404) errorMessage = 'Resource not found';
+        }
+        throw new Error(errorMessage);
     }
 
     return res.json();

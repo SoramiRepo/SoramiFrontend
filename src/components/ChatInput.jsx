@@ -52,10 +52,22 @@ const ChatInput = ({
     // 处理发送消息
     const handleSend = async () => {
         if (!input.trim() || disabled) return;
+        
+        // 前端输入验证，配合后端验证
+        const trimmedContent = input.trim();
+        if (trimmedContent.length === 0) {
+            alert('Message content cannot be empty');
+            return;
+        }
+        
+        if (trimmedContent.length > 1000) {
+            alert('Message content too long (max 1000 characters)');
+            return;
+        }
 
         const messageData = {
             receiverId,
-            content: input.trim(),
+            content: trimmedContent,
             messageType: 'text'
         };
 
@@ -91,6 +103,12 @@ const ChatInput = ({
         // 文件大小限制 (10MB)
         if (file.size > 10 * 1024 * 1024) {
             alert('File size must be less than 10MB');
+            return;
+        }
+        
+        // 文件名长度限制
+        if (file.name.length > 100) {
+            alert('File name too long (max 100 characters)');
             return;
         }
 

@@ -44,6 +44,12 @@ function SearchPage() {
         
         const trimmed = keyword.trim();
         if (!trimmed) return;
+        
+        // 前端搜索关键词验证，配合后端验证
+        if (trimmed.length < 1 || trimmed.length > 50) {
+            alert('Search keyword must be between 1 and 50 characters');
+            return;
+        }
 
         setSearchTerm(trimmed);
         setLoading(true);
@@ -81,6 +87,12 @@ function SearchPage() {
         // 直接执行搜索逻辑，而不是调用handleSearch
         const trimmed = term.trim();
         if (!trimmed) return;
+        
+        // 前端搜索关键词验证，配合后端验证
+        if (trimmed.length < 1 || trimmed.length > 50) {
+            alert('Search keyword must be between 1 and 50 characters');
+            return;
+        }
 
         setLoading(true);
 
