@@ -118,7 +118,7 @@ function PostContent({ post, allPosts = [], onDelete, onReplySuccess, defaultExp
                 ) : (
                     <>
                         <PostHeader post={post} onDelete={handleDelete} currentUserId={currentUserId} parentPost={parentPost} />
-                        <PostBody content={post.content} />
+                        <PostBody content={post.content} images={post.images || []} />
                     </>
                 )}
 

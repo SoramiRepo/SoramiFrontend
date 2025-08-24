@@ -46,7 +46,7 @@ const RepostContent = ({ post, onDelete, currentUserId, parentPost }) => {
                     currentUserId={currentUserId} 
                     parentPost={parentPost} 
                 />
-                <PostBody content={originalPost.content} />
+                <PostBody content={originalPost.content} images={originalPost.images || []} />
             </div>
         </div>
     );

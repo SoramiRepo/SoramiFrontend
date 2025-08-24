@@ -75,12 +75,15 @@ const ChatMessage = ({
         switch (message.messageType) {
             case 'image':
                 return (
-                    <img 
-                        src={message.content} 
-                        alt="Image message" 
-                        className="max-w-xs max-h-64 rounded-lg cursor-pointer hover:opacity-90 transition-opacity"
-                        onClick={() => window.open(message.content, '_blank')}
-                    />
+                    <div className="flex justify-center">
+                        <img 
+                            src={message.content} 
+                            alt="Image message" 
+                            className="max-w-full h-auto rounded-lg shadow-sm hover:shadow-md transition-all duration-200 cursor-pointer"
+                            style={{ maxHeight: '200px', maxWidth: '300px' }}
+                            onClick={() => window.open(message.content, '_blank')}
+                        />
+                    </div>
                 );
             case 'file':
                 return (

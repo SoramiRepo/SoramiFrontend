@@ -4,6 +4,7 @@ import { Plus, X, Send } from 'lucide-react';
 import config from '../config';
 import { useToast } from './ToastContext';
 import { useTranslation } from 'react-i18next';
+import ImageUpload from './ImageUpload';
 
 function FloatingPostButton({ onPostSuccess }) {
     const [isModalOpen, setIsModalOpen] = useState(false);
@@ -60,6 +61,23 @@ function FloatingPostButton({ onPostSuccess }) {
         }
     };
 
+    const handleMarkdownInsert = (markdown) => {
+        // 在光标位置插入Markdown
+        const textarea = document.querySelector('textarea');
+        if (textarea) {
+            const start = textarea.selectionStart;
+            const end = textarea.selectionEnd;
+            const newContent = postContent.substring(0, start) + markdown + postContent.substring(end);
+            setPostContent(newContent);
+            
+            // 设置光标位置到插入内容之后
+            setTimeout(() => {
+                textarea.focus();
+                textarea.setSelectionRange(start + markdown.length, start + markdown.length);
+            }, 0);
+        }
+    };
+
     // Handle ESC key to close modal
     useEffect(() => {
         const handleEscKey = (event) => {
@@ -111,14 +129,14 @@ function FloatingPostButton({ onPostSuccess }) {
                             onClick={(e) => e.stopPropagation()}
                         >
                             <motion.div
-                                className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-xl rounded-2xl shadow-2xl w-full max-w-md max-h-[90vh] md:max-h-[80vh] overflow-hidden border border-white/20 dark:border-gray-700/50"
+                                className="bg-white/80 dark:bg-gray-800/80 backdrop-blur-xl rounded-2xl shadow-2xl w-full max-w-2xl max-h-[90vh] md:max-h-[80vh] flex flex-col border border-white/20 dark:border-gray-700/50"
                                 initial={{ opacity: 0, scale: 0.8, y: 50 }}
                                 animate={{ opacity: 1, scale: 1, y: 0 }}
                                 exit={{ opacity: 0, scale: 0.8, y: 50 }}
                                 transition={{ duration: 0.3 }}
                             >
-                                {/* Modal Header */}
-                                <div className="flex items-center justify-between p-4 md:p-6 border-b border-gray-200 dark:border-gray-700">
+                                {/* Modal Header - 固定在顶部 */}
+                                <div className="flex items-center justify-between p-4 md:p-6 border-b border-gray-200 dark:border-gray-700 flex-shrink-0">
                                     <h2 className="text-lg md:text-xl font-semibold text-gray-900 dark:text-white">
                                         {t('createPost')}
                                     </h2>
@@ -133,16 +151,30 @@ function FloatingPostButton({ onPostSuccess }) {
                                     </motion.button>
                                 </div>
 
-                                {/* Modal Body */}
-                                <div className="p-4 md:p-6">
+                                {/* Modal Body - 可滚动区域 */}
+                                <div className="flex-1 overflow-y-auto p-4 md:p-6">
                                     <div className="space-y-4">
-                                        <textarea
-                                            className="w-full p-4 border border-gray-300/50 dark:border-gray-600/50 bg-white/50 dark:bg-gray-700/50 backdrop-blur-sm text-gray-900 dark:text-white rounded-lg resize-none focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
-                                            rows="6"
-                                            value={postContent}
-                                            onChange={(e) => setPostContent(e.target.value)}
-                                            placeholder={t('shareIdeaHere')}
-                                            disabled={loading}
+                                        {/* 文本输入区域 */}
+                                        <div className="relative">
+                                            <textarea
+                                                className="w-full p-4 border border-gray-300/50 dark:border-gray-600/50 bg-white/50 dark:bg-gray-700/50 backdrop-blur-sm text-gray-900 dark:text-white rounded-lg resize-none focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
+                                                rows="6"
+                                                value={postContent}
+                                                onChange={(e) => setPostContent(e.target.value)}
+                                                placeholder={t('shareIdeaHere')}
+                                                disabled={loading}
+                                            />
+                                            
+                                            {/* 字符计数 */}
+                                            <div className="absolute bottom-3 right-3 text-xs text-gray-400">
+                                                {postContent.length}/1000
+                                            </div>
+                                        </div>
+                                        
+                                        {/* 图片上传区域 */}
+                                        <ImageUpload 
+                                            onMarkdownInsert={handleMarkdownInsert}
+                                            maxImages={9}
                                         />
                                         
                                         {error && (
@@ -154,37 +186,53 @@ function FloatingPostButton({ onPostSuccess }) {
                                                 <p className="text-red-600 dark:text-red-400 text-sm">{error}</p>
                                             </motion.div>
                                         )}
+                                    </div>
+                                </div>
 
-                                        <div className="flex flex-col sm:flex-row justify-end gap-3 sm:space-x-3 space-y-2 sm:space-y-0">
-                                            <motion.button
-                                                onClick={handleCloseModal}
-                                                className="px-4 py-2 text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200 transition-colors duration-200 rounded-lg"
-                                                whileHover={{ scale: 1.05 }}
-                                                whileTap={{ scale: 0.95 }}
-                                                disabled={loading}
-                                            >
-                                                {t('cancel')}
-                                            </motion.button>
-                                            
-                                            <motion.button
-                                                onClick={handlePostSubmit}
-                                                className="flex items-center justify-center gap-2 px-6 py-2 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-lg hover:shadow-lg transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
-                                                whileHover={loading ? {} : { scale: 1.05 }}
-                                                whileTap={loading ? {} : { scale: 0.95 }}
-                                                disabled={loading || !postContent.trim()}
-                                            >
-                                                {loading ? (
+                                {/* Modal Footer - 固定在底部，始终可见 */}
+                                <div className="flex flex-col sm:flex-row justify-between items-center gap-3 sm:space-x-3 space-y-2 sm:space-y-0 p-4 md:p-6 border-t border-gray-200 dark:border-gray-700 flex-shrink-0 bg-white/50 dark:bg-gray-800/50 backdrop-blur-sm">
+                                    <div className="text-sm text-gray-500 dark:text-gray-400">
+                                        💡 {t('markdownSupportHint')}
+                                    </div>
+                                    
+                                    <div className="flex gap-3">
+                                        <motion.button
+                                            onClick={handleCloseModal}
+                                            className="px-4 py-2 text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200 transition-colors duration-200 rounded-lg"
+                                            whileHover={{ scale: 1.05 }}
+                                            whileTap={{ scale: 0.95 }}
+                                            disabled={loading}
+                                        >
+                                            {t('cancel')}
+                                        </motion.button>
+                                        
+                                        <motion.button
+                                            onClick={handlePostSubmit}
+                                            className={`flex items-center justify-center gap-2 px-6 py-2 rounded-lg font-medium transition-all duration-200 ${
+                                                postContent.trim() && !loading
+                                                    ? 'bg-gradient-to-r from-blue-600 to-purple-600 text-white hover:shadow-lg'
+                                                    : 'bg-gray-300 dark:bg-gray-600 text-gray-500 dark:text-gray-400 cursor-not-allowed'
+                                            }`}
+                                            whileHover={postContent.trim() && !loading ? { scale: 1.05 } : {}}
+                                            whileTap={postContent.trim() && !loading ? { scale: 0.95 } : {}}
+                                            disabled={!postContent.trim() || loading}
+                                        >
+                                            {loading ? (
+                                                <>
                                                     <motion.div
                                                         className="w-4 h-4 border-2 border-white border-t-transparent rounded-full"
                                                         animate={{ rotate: 360 }}
                                                         transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
                                                     />
-                                                ) : (
+                                                    <span>{t('posting')}</span>
+                                                </>
+                                            ) : (
+                                                <>
                                                     <Send size={16} />
-                                                )}
-                                                {loading ? t('posting') : t('post')}
-                                            </motion.button>
-                                        </div>
+                                                    <span>{t('post')}</span>
+                                                </>
+                                            )}
+                                        </motion.button>
                                     </div>
                                 </div>
                             </motion.div>
