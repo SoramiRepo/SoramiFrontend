@@ -21,6 +21,8 @@ const CreateGroupModal = ({ isOpen, onClose, onSubmit }) => {
     }
   }, [isOpen]);
 
+
+
   // 加载可用用户
   const loadAvailableUsers = async () => {
     try {
@@ -30,7 +32,7 @@ const CreateGroupModal = ({ isOpen, onClose, onSubmit }) => {
         { id: '1', username: 'user1', avatar_url: '/default-avatar.png' },
         { id: '2', username: 'user2', avatar_url: '/default-avatar.png' },
         { id: '3', username: 'user3', avatar_url: '/default-avatar.png' },
-        { id: '4', username: 'user4', avatar_url: '/default-avatar.png' },
+        { id: '4', username: 'username4', avatar_url: '/default-avatar.png' },
         { id: '5', username: 'user5', avatar_url: '/default-avatar.png' },
       ];
       setAvailableUsers(mockUsers);

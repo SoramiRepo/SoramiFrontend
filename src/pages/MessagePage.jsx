@@ -1,7 +1,20 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useTranslation } from 'react-i18next';
-import { Search, Plus, MoreVertical, ArrowLeft, Phone, Video, Info } from 'lucide-react';
+import { 
+  Search, 
+  Plus, 
+  MoreVertical, 
+  ArrowLeft, 
+  Phone, 
+  Video, 
+  Info, 
+  Filter,
+  X,
+  MessageCircle,
+  Users,
+  Sparkles
+} from 'lucide-react';
 import useMessageStore from '../hooks/useMessageStore';
 import { useWebSocket } from '../hooks/useWebSocket';
 import messageService from '../services/messageService';
@@ -11,12 +24,14 @@ import CreateGroupModal from '../components/CreateGroupModal';
 import GroupInfoModal from '../components/GroupInfoModal';
 
 const MessagePage = () => {
-    const { t } = useTranslation();
+  const { t } = useTranslation();
   const [searchQuery, setSearchQuery] = useState('');
   const [showCreateGroup, setShowCreateGroup] = useState(false);
   const [showGroupInfo, setShowGroupInfo] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
   const [showChatList, setShowChatList] = useState(true);
+  const [searchFocused, setSearchFocused] = useState(false);
+  const [filterType, setFilterType] = useState('all'); // all, private, group
   
   const {
     chatSessions,
@@ -55,14 +70,14 @@ const MessagePage = () => {
         if (response.success) {
           setChatSessions(response.data);
         }
-        } catch (error) {
+      } catch (error) {
         setError(error.message);
-        } finally {
+      } finally {
         setLoading(false);
       }
     };
 
-        loadChatSessions();
+    loadChatSessions();
   }, [setChatSessions, setLoading, setError, clearError]);
 
   // 处理聊天选择
@@ -79,20 +94,43 @@ const MessagePage = () => {
     setShowChatList(true);
   };
 
+  // 清除搜索
+  const clearSearch = () => {
+    setSearchQuery('');
+    setFilterType('all');
+    searchInputRef.current?.focus();
+  };
+
   // 过滤聊天会话
-  const filteredChats = chatSessions.filter(chat => {
-    if (!searchQuery) return true;
+  const filteredChats = useMemo(() => {
+    let filtered = chatSessions;
     
-    const query = searchQuery.toLowerCase();
-    if (chat.type === 'group') {
-      return chat.name.toLowerCase().includes(query) ||
-             chat.description?.toLowerCase().includes(query);
-    } else {
-      return chat.participants.some(user => 
-        user.username.toLowerCase().includes(query)
-      );
+    // 按类型过滤
+    if (filterType !== 'all') {
+      filtered = filtered.filter(chat => chat.type === filterType);
     }
-  });
+    
+    // 按搜索查询过滤
+    if (searchQuery.trim()) {
+      const query = searchQuery.toLowerCase().trim();
+      filtered = filtered.filter(chat => {
+        if (chat.type === 'group') {
+          return chat.name.toLowerCase().includes(query) ||
+                 chat.description?.toLowerCase().includes(query) ||
+                 chat.participants.some(user => 
+                   user.username.toLowerCase().includes(query)
+                 );
+        } else {
+          return chat.participants.some(user => 
+            user.username.toLowerCase().includes(query) ||
+            user.display_name?.toLowerCase().includes(query)
+          );
+        }
+      });
+    }
+    
+    return filtered;
+  }, [chatSessions, searchQuery, filterType]);
 
   // 处理创建群组
   const handleCreateGroup = async (groupData) => {
@@ -106,61 +144,70 @@ const MessagePage = () => {
           setChatSessions(sessionsResponse.data);
         }
       }
-        } catch (error) {
+    } catch (error) {
       setError(error.message);
     }
   };
-    
-    return (
-    <div className="h-full bg-gray-50 dark:bg-gray-900">
+
+  return (
+    <div className="h-full bg-gradient-to-br from-blue-50 via-white to-purple-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
       {/* 移动端头部 */}
       {isMobile && currentChat && (
-                <motion.div
+        <motion.div
           initial={{ y: -50, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
-          className="flex items-center justify-between p-4 bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700"
+          className="flex items-center justify-between p-4 bg-white/80 dark:bg-gray-800/80 backdrop-blur-md border-b border-gray-200/50 dark:border-gray-700/50 shadow-sm"
         >
           <button
             onClick={handleBackToList}
-            className="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+            className="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 transition-all duration-200"
           >
             <ArrowLeft size={20} />
           </button>
           
-          <div className="flex items-center space-x-2">
-            <img
-              src={currentChat.avatar_url || '/default-avatar.png'}
-              alt={currentChat.name}
-              className="w-8 h-8 rounded-full"
-            />
-            <div>
-              <h3 className="font-medium text-gray-900 dark:text-white">
-                {currentChat.name}
-                                        </h3>
+          <div className="flex items-center space-x-3">
+            <div className="relative">
+              <img
+                src={currentChat.avatar_url || '/default-avatar.png'}
+                alt={currentChat.name}
+                className="w-10 h-10 rounded-full ring-2 ring-blue-200 dark:ring-blue-700"
+              />
               {currentChat.type === 'private' && (
-                <span className={`text-xs ${currentChat.participants[0]?.is_online ? 'text-green-500' : 'text-gray-500'}`}>
+                <div className={`absolute -bottom-1 -right-1 w-3 h-3 rounded-full border-2 border-white dark:border-gray-800 ${
+                  currentChat.participants[0]?.is_online ? 'bg-green-500' : 'bg-gray-400'
+                }`} />
+              )}
+            </div>
+            <div>
+              <h3 className="font-semibold text-gray-900 dark:text-white">
+                {currentChat.name}
+              </h3>
+              {currentChat.type === 'private' && (
+                <span className={`text-xs ${
+                  currentChat.participants[0]?.is_online ? 'text-green-600' : 'text-gray-500'
+                }`}>
                   {currentChat.participants[0]?.is_online ? t('online') : t('offline')}
-                                            </span>
-                                            )}
-                                </div>
-                            </div>
-                            
-          <div className="flex items-center space-x-2">
-            <button className="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors">
+                </span>
+              )}
+            </div>
+          </div>
+          
+          <div className="flex items-center space-x-1">
+            <button className="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 transition-all duration-200">
               <Phone size={18} />
             </button>
-            <button className="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors">
+            <button className="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 transition-all duration-200">
               <Video size={18} />
             </button>
             <button 
               onClick={() => setShowGroupInfo(true)}
-              className="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+              className="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 transition-all duration-200"
             >
               <Info size={18} />
             </button>
-                                        </div>
-                                    </motion.div>
-                                )}
+          </div>
+        </motion.div>
+      )}
 
       <div className="flex h-full">
         {/* 聊天列表 */}
@@ -171,72 +218,126 @@ const MessagePage = () => {
               animate={{ x: 0, opacity: 1 }}
               exit={{ x: -300, opacity: 0 }}
               transition={{ type: 'spring', stiffness: 300, damping: 30 }}
-              className={`w-full md:w-80 bg-white dark:bg-gray-800 border-r border-gray-200 dark:border-gray-700 flex flex-col ${
+              className={`w-full md:w-96 bg-white/80 dark:bg-gray-800/80 backdrop-blur-md border-r border-gray-200/50 dark:border-gray-700/50 flex flex-col shadow-lg ${
                 isMobile ? 'absolute inset-0 z-10' : ''
               }`}
             >
               {/* 头部 */}
-              <div className="p-4 border-b border-gray-200 dark:border-gray-700">
-                <div className="flex items-center justify-between mb-4">
-                  <h1 className="text-xl font-bold text-gray-900 dark:text-white">
-                    {t('messages')}
-                  </h1>
-                  <div className="flex items-center space-x-2">
-                    <button
-                      onClick={() => setShowCreateGroup(true)}
-                      className="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
-                      title={t('create_group')}
-                    >
-                      <Plus size={20} />
-                    </button>
-                                            </div>
-                                </div>
+              <div className="p-6 border-b border-gray-200/50 dark:border-gray-700/50 bg-gradient-to-r from-blue-500 to-purple-600">
+                <div className="flex items-center justify-between mb-6">
+                  <div className="flex items-center space-x-3">
+                    <div className="w-10 h-10 bg-white/20 rounded-full flex items-center justify-center">
+                      <MessageCircle className="w-6 h-6 text-white" />
+                    </div>
+                    <div>
+                      <h1 className="text-2xl font-bold text-white">
+                        {t('messages')}
+                      </h1>
+                      <p className="text-blue-100 text-sm">
+                        {chatSessions.length} {t('conversations')}
+                      </p>
+                    </div>
+                  </div>
+                  <button
+                    onClick={() => setShowCreateGroup(true)}
+                    className="p-3 bg-white/20 hover:bg-white/30 rounded-full transition-all duration-200 group"
+                    title={t('create_group')}
+                  >
+                    <Plus size={20} className="text-white group-hover:scale-110 transition-transform" />
+                  </button>
+                </div>
 
                 {/* 搜索框 */}
                 <div className="relative">
-                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={18} />
-                  <input
-                    ref={searchInputRef}
-                    type="text"
-                    placeholder={t('search_contacts')}
-                    value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
-                    className="w-full pl-10 pr-4 py-2 bg-gray-100 dark:bg-gray-700 border-0 rounded-lg text-gray-900 dark:text-white placeholder-gray-500 focus:ring-2 focus:ring-blue-500 focus:bg-white dark:focus:bg-gray-600 transition-all"
-                  />
+                  <div className={`relative transition-all duration-300 ${
+                    searchFocused ? 'scale-105' : 'scale-100'
+                  }`}>
+                    <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400" size={20} />
+                    <input
+                      ref={searchInputRef}
+                      type="text"
+                      placeholder={t('search_contacts')}
+                      value={searchQuery}
+                      onChange={(e) => setSearchQuery(e.target.value)}
+                      onFocus={() => setSearchFocused(true)}
+                      onBlur={() => setSearchFocused(false)}
+                      className="w-full pl-12 pr-12 py-3 bg-white/90 dark:bg-gray-700/90 border-0 rounded-2xl text-gray-900 dark:text-white placeholder-gray-500 focus:ring-2 focus:ring-white/50 focus:bg-white dark:focus:bg-gray-600 transition-all duration-300 shadow-lg"
+                    />
+                    {searchQuery && (
+                      <button
+                        onClick={clearSearch}
+                        className="absolute right-3 top-1/2 transform -translate-y-1/2 p-1 rounded-full hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors"
+                      >
+                        <X size={16} />
+                      </button>
+                    )}
+                  </div>
+                  
+                  {/* 过滤器 */}
+                  <div className="flex items-center space-x-2 mt-3">
+                    <Filter size={16} className="text-blue-100" />
+                    <div className="flex bg-white/20 rounded-lg p-1">
+                      {[
+                        { key: 'all', label: t('all'), icon: MessageCircle },
+                        { key: 'private', label: t('private'), icon: MessageCircle },
+                        { key: 'group', label: t('groups'), icon: Users }
+                      ].map(({ key, label, icon: Icon }) => (
+                        <button
+                          key={key}
+                          onClick={() => setFilterType(key)}
+                          className={`px-3 py-1.5 rounded-md text-xs font-medium transition-all duration-200 ${
+                            filterType === key
+                              ? 'bg-white text-blue-600 shadow-sm'
+                              : 'text-blue-100 hover:text-white hover:bg-white/10'
+                          }`}
+                        >
+                          <Icon size={14} className="inline mr-1" />
+                          {label}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
                 </div>
-                            </div>
-                            
+              </div>
+              
               {/* 聊天列表 */}
-              <div className="flex-1 overflow-y-auto">
+              <div className="flex-1 overflow-y-auto p-2">
                 <ChatList
                   chats={filteredChats}
                   onChatSelect={handleChatSelect}
                   currentChat={currentChat}
+                  searchQuery={searchQuery}
                 />
-                        </div>
+              </div>
 
               {/* 连接状态 */}
-              <div className="p-4 border-t border-gray-200 dark:border-gray-700">
-                <div className={`flex items-center space-x-2 text-sm ${
-                  isConnected ? 'text-green-500' : 'text-red-500'
+              <div className="p-4 border-t border-gray-200/50 dark:border-gray-700/50 bg-gray-50/50 dark:bg-gray-700/50">
+                <div className={`flex items-center justify-between ${
+                  isConnected ? 'text-green-600' : 'text-red-500'
                 }`}>
-                  <div className={`w-2 h-2 rounded-full ${
-                    isConnected ? 'bg-green-500' : 'bg-red-500'
-                  }`} />
-                  <span>
-                    {isConnected ? t('connected') : t('disconnected')}
-                  </span>
+                  <div className="flex items-center space-x-2">
+                    <div className={`w-2 h-2 rounded-full ${
+                      isConnected ? 'bg-green-500' : 'bg-red-500'
+                    }`} />
+                    <span className="text-sm font-medium">
+                      {isConnected ? t('connected') : t('disconnected')}
+                    </span>
+                  </div>
+                  {isConnected && (
+                    <Sparkles size={16} className="animate-pulse" />
+                  )}
                 </div>
-                        </div>
+              </div>
             </motion.div>
           )}
         </AnimatePresence>
 
         {/* 聊天窗口 */}
         {currentChat && (
-                        <motion.div 
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
+          <motion.div 
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ duration: 0.3 }}
             className="flex-1 flex flex-col"
           >
             <ChatWindow
@@ -252,24 +353,38 @@ const MessagePage = () => {
           <motion.div
             initial={{ opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}
-            className="flex-1 flex items-center justify-center bg-gray-50 dark:bg-gray-900"
+            transition={{ duration: 0.5 }}
+            className="flex-1 flex items-center justify-center bg-gradient-to-br from-blue-50 to-purple-50 dark:from-gray-900 dark:to-gray-800"
           >
-            <div className="text-center">
-              <div className="w-24 h-24 bg-gray-200 dark:bg-gray-700 rounded-full flex items-center justify-center mx-auto mb-6">
-                <svg className="w-12 h-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
-                </svg>
-                            </div>
-              <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-2">
-                                {t('select_chat')}
-              </h3>
-              <p className="text-gray-600 dark:text-gray-400">
-                                {t('select_chat_hint')}
-                            </p>
+            <div className="text-center max-w-md">
+              <motion.div
+                initial={{ scale: 0 }}
+                animate={{ scale: 1 }}
+                transition={{ delay: 0.2, type: 'spring', stiffness: 200 }}
+                className="w-32 h-32 bg-gradient-to-br from-blue-100 to-purple-100 dark:from-gray-700 dark:to-gray-600 rounded-full flex items-center justify-center mx-auto mb-8 shadow-lg"
+              >
+                <MessageCircle className="w-16 h-16 text-blue-500 dark:text-blue-400" />
+              </motion.div>
+              <motion.h3
+                initial={{ y: 20, opacity: 0 }}
+                animate={{ y: 0, opacity: 1 }}
+                transition={{ delay: 0.3 }}
+                className="text-3xl font-bold text-gray-900 dark:text-white mb-4"
+              >
+                {t('select_chat')}
+              </motion.h3>
+              <motion.p
+                initial={{ y: 20, opacity: 0 }}
+                animate={{ y: 0, opacity: 1 }}
+                transition={{ delay: 0.4 }}
+                className="text-lg text-gray-600 dark:text-gray-400 leading-relaxed"
+              >
+                {t('select_chat_hint')}
+              </motion.p>
             </div>
-                        </motion.div>
-                )}
-            </div>
+          </motion.div>
+        )}
+      </div>
 
       {/* 创建群组模态框 */}
       <CreateGroupModal
@@ -284,8 +399,8 @@ const MessagePage = () => {
         onClose={() => setShowGroupInfo(false)}
         group={currentChat}
       />
-        </div>
-    );
+    </div>
+  );
 };
 
 export default MessagePage;

@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Link, useParams, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Calendar, Users, UserPlus, Edit3, ArrowLeft, Grid3X3, Heart, MessageCircle } from 'lucide-react';
+
 import config from '../config';
 import PostList from './PostList';
 import UserBadges from './UserBadges';

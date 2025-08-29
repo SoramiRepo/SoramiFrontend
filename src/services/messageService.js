@@ -340,6 +340,8 @@ class MessageService {
     }
   }
 
+
+
   // 上传文件
   async uploadFile(file, chatId) {
     try {
