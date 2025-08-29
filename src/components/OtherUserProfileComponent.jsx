@@ -123,7 +123,7 @@ function OtherUserProfileComponent() {
             setIsFollowing(!isFollowing);
             
             const res = await fetch(`${config.apiBaseUrl}/api/user/${endpoint}/${user._id}`, {
-                method: 'POST',
+                method: endpoint === 'unfollow' ? 'DELETE' : 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                     Authorization: `Bearer ${token}`,

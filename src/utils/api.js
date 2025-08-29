@@ -1,56 +1,17 @@
 import config from '../config';
 import { getAuthToken } from './auth';
 
-// 发送消息
-export async function sendMessage(receiverId, content, messageType = 'text') {
+// 获取用户信息
+export async function fetchUser(userId) {
     const token = getAuthToken();
     if (!token) throw new Error('No authentication token');
 
-    const res = await fetch(`${config.apiBaseUrl}/api/message/send`, {
-        method: 'POST',
-        headers: { 
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${token}`
-        },
-        body: JSON.stringify({ receiverId, content, messageType }),
-    });
-
-    if (!res.ok) {
-        let errorMessage = 'Failed to send message';
-        try {
-            const error = await res.json();
-            errorMessage = error.message || errorMessage;
-        } catch (e) {
-            // 如果响应不是JSON格式，使用状态码信息
-            if (res.status === 400) {
-                errorMessage = 'Invalid input data';
-            } else if (res.status === 401) {
-                errorMessage = 'Authentication required';
-            } else if (res.status === 403) {
-                errorMessage = 'Access denied';
-            } else if (res.status === 404) {
-                errorMessage = 'Resource not found';
-            } else if (res.status === 429) {
-                errorMessage = 'Too many requests';
-            }
-        }
-        throw new Error(errorMessage);
-    }
-
-    return res.json();
-}
-
-// 获取聊天记录
-export async function fetchChatHistory(targetUserId, page = 1, limit = 50) {
-    const token = getAuthToken();
-    if (!token) throw new Error('No authentication token');
-
-    const res = await fetch(`${config.apiBaseUrl}/api/message/chat/${targetUserId}?page=${page}&limit=${limit}`, {
+    const res = await fetch(`${config.apiBaseUrl}/api/user/${userId}`, {
         headers: { 'Authorization': `Bearer ${token}` }
     });
 
     if (!res.ok) {
-        let errorMessage = 'Failed to fetch chat history';
+        let errorMessage = 'Failed to fetch user';
         try {
             const error = await res.json();
             errorMessage = error.message || errorMessage;
@@ -58,7 +19,7 @@ export async function fetchChatHistory(targetUserId, page = 1, limit = 50) {
             if (res.status === 400) errorMessage = 'Invalid input data';
             else if (res.status === 401) errorMessage = 'Authentication required';
             else if (res.status === 403) errorMessage = 'Access denied';
-            else if (res.status === 404) errorMessage = 'Resource not found';
+            else if (res.status === 404) errorMessage = 'User not found';
             else if (res.status === 429) errorMessage = 'Too many requests';
         }
         throw new Error(errorMessage);
@@ -67,20 +28,22 @@ export async function fetchChatHistory(targetUserId, page = 1, limit = 50) {
     return res.json();
 }
 
-// 获取聊天会话列表
-export async function fetchChatSessions(page = 1, limit = 20) {
+// 更新用户资料
+export async function updateUserProfile(userData) {
     const token = getAuthToken();
     if (!token) throw new Error('No authentication token');
 
-    const res = await fetch(`${config.apiBaseUrl}/api/message/sessions?page=${page}&limit=${limit}`, {
-        headers: { 'Authorization': `Bearer ${token}` }
+    const res = await fetch(`${config.apiBaseUrl}/api/user/profile`, {
+        method: 'PUT',
+        headers: { 
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify(userData),
     });
 
     if (!res.ok) {
-        if (res.status === 429) {
-            throw new Error('Too Many Requests - Rate limit exceeded');
-        }
-        let errorMessage = 'Failed to fetch chat sessions';
+        let errorMessage = 'Failed to update profile';
         try {
             const error = await res.json();
             errorMessage = error.message || errorMessage;
@@ -88,7 +51,7 @@ export async function fetchChatSessions(page = 1, limit = 20) {
             if (res.status === 400) errorMessage = 'Invalid input data';
             else if (res.status === 401) errorMessage = 'Authentication required';
             else if (res.status === 403) errorMessage = 'Access denied';
-            else if (res.status === 404) errorMessage = 'Resource not found';
+            else if (res.status === 429) errorMessage = 'Too many requests';
         }
         throw new Error(errorMessage);
     }
@@ -96,71 +59,85 @@ export async function fetchChatSessions(page = 1, limit = 20) {
     return res.json();
 }
 
-// 删除消息
-export async function deleteMessage(messageId) {
+// 关注用户
+export async function followUser(userId) {
     const token = getAuthToken();
     if (!token) throw new Error('No authentication token');
 
-    const res = await fetch(`${config.apiBaseUrl}/api/message/${messageId}`, {
+    const res = await fetch(`${config.apiBaseUrl}/api/user/${userId}/follow`, {
+        method: 'POST',
+        headers: { 'Authorization': `Bearer ${token}` }
+    });
+
+    if (!res.ok) {
+        let errorMessage = 'Failed to follow user';
+        try {
+            const error = await res.json();
+            errorMessage = error.message || errorMessage;
+        } catch (e) {
+            if (res.status === 400) errorMessage = 'Invalid input data';
+            else if (res.status === 401) errorMessage = 'Authentication required';
+            else if (res.status === 403) errorMessage = 'Access denied';
+            else if (res.status === 404) errorMessage = 'User not found';
+            else if (res.status === 429) errorMessage = 'Too many requests';
+        }
+        throw new Error(errorMessage);
+    }
+
+    return res.json();
+}
+
+// 取消关注用户
+export async function unfollowUser(userId) {
+    const token = getAuthToken();
+    if (!token) throw new Error('No authentication token');
+
+    const res = await fetch(`${config.apiBaseUrl}/api/user/${userId}/unfollow`, {
         method: 'DELETE',
         headers: { 'Authorization': `Bearer ${token}` }
     });
 
     if (!res.ok) {
-        const error = await res.json();
-        throw new Error(error.message || 'Failed to delete message');
-    }
-
-    return res.json();
-}
-
-// 标记消息为已读
-export async function markMessageAsRead(messageId) {
-    const token = getAuthToken();
-    if (!token) throw new Error('No authentication token');
-
-    const res = await fetch(`${config.apiBaseUrl}/api/message/${messageId}/read`, {
-        method: 'PUT',
-        headers: { 'Authorization': `Bearer ${token}` }
-    });
-
-    if (!res.ok) {
-        const error = await res.json();
-        throw new Error(error.message || 'Failed to mark message as read');
-    }
-
-    return res.json();
-}
-
-// 获取未读消息数
-export async function fetchUnreadMessageCount() {
-    const token = getAuthToken();
-    if (!token) throw new Error('No authentication token');
-
-    const res = await fetch(`${config.apiBaseUrl}/api/message/unread/count`, {
-        headers: { 'Authorization': `Bearer ${token}` }
-    });
-
-    if (!res.ok) {
-        if (res.status === 429) {
-            throw new Error('Too Many Requests - Rate limit exceeded');
+        let errorMessage = 'Failed to unfollow user';
+        try {
+            const error = await res.json();
+            errorMessage = error.message || errorMessage;
+        } catch (e) {
+            if (res.status === 400) errorMessage = 'Invalid input data';
+            else if (res.status === 401) errorMessage = 'Authentication required';
+            else if (res.status === 403) errorMessage = 'Access denied';
+            else if (res.status === 404) errorMessage = 'User not found';
+            else if (res.status === 429) errorMessage = 'Too many requests';
         }
-        const error = await res.json();
-        throw new Error(error.message || 'Failed to fetch unread count');
+        throw new Error(errorMessage);
     }
 
     return res.json();
 }
 
-// 向后兼容的旧API函数（重命名以避免冲突）
-export async function fetchPrivateChatList() {
-    return fetchChatSessions();
-}
+// 获取用户关注列表
+export async function fetchUserFollows(userId, type = 'followers') {
+    const token = getAuthToken();
+    if (!token) throw new Error('No authentication token');
 
-export async function fetchPrivateChatHistory(userId) {
-    return fetchChatHistory(userId);
-}
+    const res = await fetch(`${config.apiBaseUrl}/api/user/${userId}/${type}`, {
+        headers: { 'Authorization': `Bearer ${token}` }
+    });
 
-export async function sendPrivateMessage(toUserId, content) {
-    return sendMessage(toUserId, content);
+    if (!res.ok) {
+        let errorMessage = `Failed to fetch ${type}`;
+        try {
+            const error = await res.json();
+            errorMessage = error.message || errorMessage;
+        } catch (e) {
+            if (res.status === 400) errorMessage = 'Invalid input data';
+            else if (res.status === 401) errorMessage = 'Authentication required';
+            else if (res.status === 403) errorMessage = 'Access denied';
+            else if (res.status === 404) errorMessage = 'User not found';
+            else if (res.status === 429) errorMessage = 'Too many requests';
+        }
+        throw new Error(errorMessage);
+    }
+
+    return res.json();
 }

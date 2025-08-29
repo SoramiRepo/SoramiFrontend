@@ -196,7 +196,7 @@ function HomePage() {
                     <SearchPage />
                 ) : location.pathname === '/notifications' ? (
                     <NotificationPage onNotificationUpdate={updateUnreadCount} />
-                ) : location.pathname ===  '/messages' ? (
+                ) : location.pathname === '/messages' ? (
                     <MessagePage />
                 ) : location.pathname.startsWith('/post/') ?  
                 (
